@@ -38,6 +38,10 @@ class ApiConstants {
 
   static const String inbox_notifications_endpoint = "ShowNotifications";
 
+  static const String takeaction_endpoint = "getStatusType";
+
+  static const String takeaction_getlowerstaff_endpoint = "getLowerStaff";
+
   static const String where_am_i = "WhereAmI";
   //concessioner
   static const String concessionaire_baseurl =
@@ -117,8 +121,9 @@ class ApiConstants {
   static const String amoh_raise_request_demographics_endpoint =
       "GET_DEMOGRAPHICS";
 
-      static const String concessionaire_incharge_pickup_capture_details_submit =
+  static const String concessionaire_incharge_pickup_capture_details_submit =
       "CONCESSIONER_PICKUP_CAPTURE_SUBMIT";
 
-        static const String c_incharge_manual_closing_tickets_submit = "CONCESSIONER_MANUAL_CLOSING_TICKET_SUBMIT";
+  static const String c_incharge_manual_closing_tickets_submit =
+      "CONCESSIONER_MANUAL_CLOSING_TICKET_SUBMIT";
 }

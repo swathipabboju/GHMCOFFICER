@@ -98,7 +98,13 @@ static const String selected_location = "Selected location is outside GHMC";
   static const String checkstatus_repairstoroad_potholes =
       "Repairs to Road (Pot holes)";
 
- 
+ // take action
+  static const String take_action_Proofid = "Enter Proof Id";
+  static const String take_action_mobileno = "Enter Mobile Number";
+  static const String take_action_emailid = "Enter email id";
+  static const String take_action_fine_amount = "Enter fine amount";
+  static const String take_action_amount = "Enter amount";
+  static const String take_action_citizen = "Citizen/Trade Name";
 
   // grievance details
   static const String grievance_details_id = "ID";

@@ -1,7 +1,7 @@
 class AppRoutes {
   AppRoutes._();
 
-  static const initial = mysplashscreen;
+  static const initial = myloginpage;
 
 //  static const initial = myloginpage;
 
@@ -19,6 +19,7 @@ class AppRoutes {
   static const String otpscreen = "/otpscreen";
   static const String viewcomment = "/viewcomments";
   static const String takeaction = "/takeaction";
+  static const String takeactionnew = "/takeactionnew";
   static const String imageviewpage = "/imageviewpage";
   static const String listviewsearch = "/listviewsearch";
   static const String raisegrievance = "/raisegrievance";

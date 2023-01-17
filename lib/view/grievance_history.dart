@@ -10,6 +10,7 @@ import 'package:ghmcofficerslogin/res/components/button.dart';
 import 'package:ghmcofficerslogin/res/components/sharedpreference.dart';
 import 'package:ghmcofficerslogin/res/constants/ApiConstants/api_constants.dart';
 import 'package:ghmcofficerslogin/res/constants/Images/image_constants.dart';
+import 'package:ghmcofficerslogin/res/constants/app_constants.dart';
 import 'package:ghmcofficerslogin/res/constants/routes/app_routes.dart';
 import 'package:ghmcofficerslogin/res/constants/text_constants/text_constants.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
@@ -24,7 +25,7 @@ class GrievanceHistory extends StatefulWidget {
 
 class _GrievanceHistoryState extends State<GrievanceHistory> {
   GrievanceHistoryResponse? grievanceHistoryResponse;
-  
+
   String? _currentAddress;
   final GlobalKey<SfPdfViewerState> _pdfViewerKey = GlobalKey();
   bool enabledropdown = false;
@@ -61,7 +62,9 @@ class _GrievanceHistoryState extends State<GrievanceHistory> {
                       itemBuilder: (context, index) {
                         final details =
                             grievanceHistoryResponse?.grievance?[index];
+                            
                         var splitted_latlong = details?.latlon?.split(",");
+                        
 
                         lat = splitted_latlong?[0];
 
@@ -71,6 +74,7 @@ class _GrievanceHistoryState extends State<GrievanceHistory> {
                             grievanceHistoryResponse?.commentsFlag == "true") {
                           if (grievanceHistoryResponse!.comments!.isNotEmpty &&
                               details?.latlon != "0.0,0.0") {
+                                
                             WidgetsBinding.instance.addPostFrameCallback((_) {
                               setState(() {
                                 directions = true;
@@ -167,56 +171,50 @@ class _GrievanceHistoryState extends State<GrievanceHistory> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     setImage(
-                                        details!.photo,
-                                        onTap: () {
-                                          if (details.photo!.contains('.pdf')) {
-                                            _pdfViewerKey.currentState?.openBookmarkView();
-                                            showAlert(details.photo);
-                                          
-                                          } else if (details.photo!
-                                                  .contains('.jpg') ||
-                                              details.photo!.contains('.png') ||
-                                              details.photo!
-                                                  .contains('.jpeg')) {
-                                            showAlertImage(details.photo);
-                                          }
-                                        },
-                                      ),
-                                       setImage(
-                                        details.photo2,
-                                        onTap: () {
-                                          if (details.photo2!
-                                              .contains('.pdf')) {
-                                                 _pdfViewerKey.currentState?.openBookmarkView();
-                                            showAlert(details.photo2);
-                                          } else if (details.photo2!
-                                                  .contains('.jpg') ||
-                                              details.photo2!
-                                                  .contains('.png') ||
-                                              details.photo2!
-                                                  .contains('.jpeg')) {
-                                            showAlertImage(details.photo2);
-                                          }
-                                        },
-                                      ),
-                                      setImage(
-                                        details.photo3,
-                                        onTap: () {
-                                          if (details.photo3!
-                                              .contains('.pdf')) {
-                                                 _pdfViewerKey.currentState?.openBookmarkView();
-                                            showAlert(details.photo3);
-                                            
-                                          } else if (details.photo3!
-                                                  .contains('.jpg') ||
-                                              details.photo3!
-                                                  .contains('.png') ||
-                                              details.photo3!
-                                                  .contains('.jpeg')) {
-                                            showAlertImage(details.photo3);
-                                          }
-                                        },
-                                      ),
+                                      details!.photo,
+                                      onTap: () {
+                                        if (details.photo!.contains('.pdf')) {
+                                          _pdfViewerKey.currentState
+                                              ?.openBookmarkView();
+                                          showAlert(details.photo);
+                                        } else if (details.photo!
+                                                .contains('.jpg') ||
+                                            details.photo!.contains('.png') ||
+                                            details.photo!.contains('.jpeg')) {
+                                          showAlertImage(details.photo);
+                                        }
+                                      },
+                                    ),
+                                    setImage(
+                                      details.photo2,
+                                      onTap: () {
+                                        if (details.photo2!.contains('.pdf')) {
+                                          _pdfViewerKey.currentState
+                                              ?.openBookmarkView();
+                                          showAlert(details.photo2);
+                                        } else if (details.photo2!
+                                                .contains('.jpg') ||
+                                            details.photo2!.contains('.png') ||
+                                            details.photo2!.contains('.jpeg')) {
+                                          showAlertImage(details.photo2);
+                                        }
+                                      },
+                                    ),
+                                    setImage(
+                                      details.photo3,
+                                      onTap: () {
+                                        if (details.photo3!.contains('.pdf')) {
+                                          _pdfViewerKey.currentState
+                                              ?.openBookmarkView();
+                                          showAlert(details.photo3);
+                                        } else if (details.photo3!
+                                                .contains('.jpg') ||
+                                            details.photo3!.contains('.png') ||
+                                            details.photo3!.contains('.jpeg')) {
+                                          showAlertImage(details.photo3);
+                                        }
+                                      },
+                                    ),
                                   ],
                                 )
                               ],
@@ -244,7 +242,7 @@ class _GrievanceHistoryState extends State<GrievanceHistory> {
                                 double lattitude = double.parse(lat.toString());
                                 double longitude =
                                     double.parse(long.toString());
-                                _launchMapsUrl(lattitude,longitude);
+                                _launchMapsUrl(lattitude, longitude);
                                 //  navigateTo(lattitude, longitude);
                                 // MapsLauncher.launchCoordinates(
                                 //     lattitude,
@@ -271,7 +269,6 @@ class _GrievanceHistoryState extends State<GrievanceHistory> {
                             child: Center(
                               child: textButton(
                                 text: TextConstants.view_comments,
-                              
                                 textcolor: Colors.white,
                                 onPressed: () {
                                   Navigator.pushNamed(
@@ -294,7 +291,7 @@ class _GrievanceHistoryState extends State<GrievanceHistory> {
                         text: TextConstants.take_action,
                         textcolor: Colors.white,
                         onPressed: () {
-                          Navigator.pushNamed(context, AppRoutes.takeaction);
+                          Navigator.pushNamed(context, AppRoutes.takeactionnew);
                         },
                       ),
                     ),
@@ -312,14 +309,13 @@ class _GrievanceHistoryState extends State<GrievanceHistory> {
     showDialog(
         context: context,
         builder: (BuildContext context) {
-          return 
-            SfPdfViewer.network(photo!,
-             onDocumentLoadFailed:((details) {
-                print("not working");
-             }),
+          return SfPdfViewer.network(
+            photo!,
+            onDocumentLoadFailed: ((details) {
+              print("not working");
+            }),
             key: _pdfViewerKey,
-            
-            );
+          );
         });
     //showDialog
   }
@@ -350,6 +346,7 @@ class _GrievanceHistoryState extends State<GrievanceHistory> {
           );
         });
   }
+
   RowComponent(var data, var value, {IconButton? ico}) {
     //final void Function()? onpressed;
     return Padding(
@@ -456,12 +453,11 @@ class _GrievanceHistoryState extends State<GrievanceHistory> {
     var uid =
         await SharedPreferencesClass().readTheData(PreferenceConstants.empd);
 //creating request url with base url and endpoint
-    const requesturl =
-        ApiConstants.baseurl + ApiConstants.history_endpoint;
+    const requesturl = ApiConstants.baseurl + ApiConstants.history_endpoint;
     //creating payload because request type is POST
     var requestPayload = {
-      "userid": "cgg@ghmc",
-      "password": "ghmc@cgg@2018",
+      "userid": AppConstants.userid,
+      "password": AppConstants.password,
       "compId": compid,
       "Uid": uid
     };
@@ -476,6 +472,7 @@ class _GrievanceHistoryState extends State<GrievanceHistory> {
         requesturl,
         data: requestPayload,
       );
+     
 
       //converting response from String to json
       final data = GrievanceHistoryResponse.fromJson(response.data);
@@ -485,6 +482,7 @@ class _GrievanceHistoryState extends State<GrievanceHistory> {
           EasyLoading.dismiss();
           if (data.grievance != null && data.grievance!.length > 0) {
             grievanceHistoryResponse = data;
+           
           }
         }
       });
@@ -577,7 +575,6 @@ class _GrievanceHistoryState extends State<GrievanceHistory> {
       debugPrint(e);
     });
   }
-
 
   void _launchMapsUrl(double lat, double lon) async {
     final url = 'https://www.google.com/maps/search/?api=1&query=$lat,$lon';
