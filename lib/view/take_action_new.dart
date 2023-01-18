@@ -95,6 +95,8 @@ class _TakeActionNewState extends State<TakeActionNew> {
             icon: Icon(Icons.arrow_back, color: Colors.black),
             onPressed: (() {
               Navigator.of(context).pop();
+              takeActionTypes1.value = "select";
+                    ramkyvalues1.value = "select";
             })),
         title: Center(
           child: Text(
@@ -262,7 +264,6 @@ class _TakeActionNewState extends State<TakeActionNew> {
                                   ShowToats.showToast(
                                       "please enter total amount");
                                 } else {
-                                  
                                   getStaffshowAlert(
                                       "${_updateGrievanceResponse?.compid}");
                                 }
@@ -494,7 +495,7 @@ class _TakeActionNewState extends State<TakeActionNew> {
 
   fetchDetails() async {
     // modeid = "15";
-     var modeid = await SharedPreferencesClass()
+    var modeid = await SharedPreferencesClass()
         .readTheData(PreferenceConstants.userdetails);
     if (modeid == "15") {
       setState(() {
@@ -674,11 +675,15 @@ class _TakeActionNewState extends State<TakeActionNew> {
                 onPressed: () {
                   if (message == _getStaff?.tag) {
                     Navigator.pop(context);
+                    takeActionTypes1.value = "select";
+                    ramkyvalues1.value = "select";
                   } else if (message == _updateGrievanceResponse?.compid) {
                     if (_updateGrievanceResponse?.status == "False") {
                       Navigator.pushNamed(context, AppRoutes.takeaction);
                     } else if (_updateGrievanceResponse?.status == "True") {
                       Navigator.pushNamed(context, AppRoutes.ghmcdashboard);
+                       takeActionTypes1.value = "select";
+                    ramkyvalues1.value = "select";
                     }
                   }
                 },

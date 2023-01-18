@@ -439,6 +439,7 @@ class _NewComplaintState extends State<NewComplaint> {
     super.initState();
     newComplaintDetails();
     _getCurrentPosition();
+     EasyLoading.dismiss();
     
   }
 
@@ -545,7 +546,7 @@ class _NewComplaintState extends State<NewComplaint> {
 
         setState(() {
           if (data.status == "true") {
-            //EasyLoading.dismiss();
+            EasyLoading.dismiss();
             insertGrievanceResponse = data;
           }
           //type.add(newComplaintResponse?.type);

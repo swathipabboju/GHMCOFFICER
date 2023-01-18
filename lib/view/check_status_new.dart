@@ -6,14 +6,13 @@ import 'package:ghmcofficerslogin/model/shared_model.dart';
 import 'package:ghmcofficerslogin/res/components/background_image.dart';
 import 'package:ghmcofficerslogin/res/components/searchbar.dart';
 import 'package:ghmcofficerslogin/res/components/sharedpreference.dart';
+import 'package:ghmcofficerslogin/res/components/showtoast.dart';
 import 'package:ghmcofficerslogin/res/components/textwidget.dart';
 import 'package:ghmcofficerslogin/res/constants/ApiConstants/api_constants.dart';
 import 'package:ghmcofficerslogin/res/constants/Images/image_constants.dart';
 import 'package:ghmcofficerslogin/res/constants/app_constants.dart';
 import 'package:ghmcofficerslogin/res/constants/routes/app_routes.dart';
 import 'package:ghmcofficerslogin/res/constants/text_constants/text_constants.dart';
-
-
 
 class CheckStatusSample extends StatefulWidget {
   const CheckStatusSample({super.key});
@@ -36,6 +35,7 @@ class _CheckStatusSampleState extends State<CheckStatusSample> {
     TextConstants.checkstatus_stepper_conditionclosed
   ];
   List _titles = [];
+  bool viewgrievanceflag = false;
 
   Map<String, String> d = {};
   List rightvalues = [];
@@ -90,7 +90,7 @@ class _CheckStatusSampleState extends State<CheckStatusSample> {
               onChanged: (value) => _runFilter(value),
               screenWidth: 1,
               onPressed: () {},
-            ),
+            ),viewgrievanceflag?
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 10.0),
@@ -172,10 +172,12 @@ class _CheckStatusSampleState extends State<CheckStatusSample> {
                                               RowComponent(
                                                   TextConstants.check_status_id,
                                                   finalitemsSearchListResponse
-                                                          .asMap()
-                                                          .values
-                                                          .toList()[index1]
-                                                      [index2][TextConstants.check_status_id]),
+                                                              .asMap()
+                                                              .values
+                                                              .toList()[index1]
+                                                          [index2][
+                                                      TextConstants
+                                                          .check_status_id]),
                                               Line(),
                                               RowComponent(
                                                   TextConstants
@@ -184,8 +186,9 @@ class _CheckStatusSampleState extends State<CheckStatusSample> {
                                                               .asMap()
                                                               .values
                                                               .toList()[index1]
-                                                          [index2]
-                                                      [TextConstants.check_status_category_name]),
+                                                          [index2][
+                                                      TextConstants
+                                                          .check_status_category_name]),
                                               Line(),
                                               RowComponent(
                                                   TextConstants
@@ -194,35 +197,42 @@ class _CheckStatusSampleState extends State<CheckStatusSample> {
                                                               .asMap()
                                                               .values
                                                               .toList()[index1]
-                                                          [index2]
-                                                      [TextConstants.check_status_subcategory_name]),
+                                                          [index2][
+                                                      TextConstants
+                                                          .check_status_subcategory_name]),
                                               Line(),
                                               RowComponent(
                                                   TextConstants
                                                       .check_status_time_stamp,
                                                   finalitemsSearchListResponse
-                                                          .asMap()
-                                                          .values
-                                                          .toList()[index1]
-                                                      [index2][TextConstants.check_status_time_stamp]),
+                                                              .asMap()
+                                                              .values
+                                                              .toList()[index1]
+                                                          [index2][
+                                                      TextConstants
+                                                          .check_status_time_stamp]),
                                               Line(),
                                               RowComponent(
                                                   TextConstants
                                                       .check_status_assigned_to,
                                                   finalitemsSearchListResponse
-                                                          .asMap()
-                                                          .values
-                                                          .toList()[index1]
-                                                      [index2][TextConstants.check_status_assigned_to]),
+                                                              .asMap()
+                                                              .values
+                                                              .toList()[index1]
+                                                          [index2][
+                                                      TextConstants
+                                                          .check_status_assigned_to]),
                                               Line(),
                                               RowComponent(
                                                   TextConstants
                                                       .check_status_status,
                                                   finalitemsSearchListResponse
-                                                          .asMap()
-                                                          .values
-                                                          .toList()[index1]
-                                                      [index2][TextConstants.check_status_status]),
+                                                              .asMap()
+                                                              .values
+                                                              .toList()[index1]
+                                                          [index2][
+                                                      TextConstants
+                                                          .check_status_status]),
                                               Padding(
                                                   padding: const EdgeInsets
                                                           .symmetric(
@@ -242,7 +252,8 @@ class _CheckStatusSampleState extends State<CheckStatusSample> {
                                                                         .values
                                                                         .toList()[
                                                                     index1][index2]
-                                                                [TextConstants.check_status_status]),
+                                                                [TextConstants
+                                                                    .check_status_status]),
                                                       ),
                                                       SizedBox(
                                                         height: 8,
@@ -264,7 +275,7 @@ class _CheckStatusSampleState extends State<CheckStatusSample> {
                   ),
                 ),
               ),
-            ),
+            ):Text("")
           ],
         ),
       ]), /* */
@@ -276,6 +287,36 @@ class _CheckStatusSampleState extends State<CheckStatusSample> {
     // TODO: implement initState
     super.initState();
     checkStatusDetails();
+  }
+
+  showAlert(String message, {String text = ""}) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: TextWidget(
+              text: message + text,
+              left: 0,
+              right: 0,
+              top: 0,
+              bottom: 0,
+              fontsize: 15,
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context)
+                      .popUntil(ModalRoute.withName(AppRoutes.ghmcdashboard));
+                },
+                child: Text(
+                  TextConstants.ok,
+                  style: TextStyle(
+                      color: Colors.blue, fontWeight: FontWeight.bold),
+                ),
+              )
+            ],
+          );
+        }); //showDialog
   }
 
   RowComponent(var data, var val) {
@@ -329,19 +370,6 @@ class _CheckStatusSampleState extends State<CheckStatusSample> {
         print(element["ID"]);
       });
 
-      /*  results = finalitemsResponse
-          .where((element) =>
-              element.id!
-                  .toLowerCase()
-                  .contains(enteredKeyword.toLowerCase()) ||
-              element.type!
-                  .toLowerCase()
-                  .contains(enteredKeyword.toLowerCase()) ||
-              element.category!
-                  .toLowerCase()
-                  .contains(enteredKeyword.toLowerCase()))
-          .toList(); */
-
       setState(() {
         finalitemsSearchListResponse = results;
       });
@@ -349,6 +377,7 @@ class _CheckStatusSampleState extends State<CheckStatusSample> {
   }
 
   checkStatusDetails() async {
+    print("called");
     EasyLoading.dismiss();
     var mobileno = await SharedPreferencesClass()
         .readTheData(PreferenceConstants.mobileno);
@@ -361,80 +390,81 @@ class _CheckStatusSampleState extends State<CheckStatusSample> {
       "userid": AppConstants.userid
     };
     final dio_obj = Dio();
+    print("payload ${check_status_payload}");
 
     try {
       final check_status_response =
           await dio_obj.post(check_status_url, data: check_status_payload);
-      //  print(check_status_response.data);
+      print("check status response ${check_status_response.data}");
 
       final data = checkStatusResponse.fromJson(check_status_response.data);
-      //  print(check_status_response.data);
 
       setState(() {
         if (data != null && data.status == "success") {
           _statusResponse = data;
           if (_statusResponse?.viewGrievances != null) {
-            _viewGrievances = data.viewGrievances;
-          }
-          var len = _statusResponse?.viewGrievances?.length ?? 0;
-          for (var i = 0; i < len; i++) {
-            val.add(_statusResponse?.viewGrievances?[i]);
-            headers[_statusResponse?.viewGrievances?[i].type] = val;
+            viewgrievanceflag = true;
+            // _viewGrievances = data.viewGrievances;
+            viewgrievanceflag = true;
 
-            var item = _statusResponse?.viewGrievances?[i];
-            _titles.add(item?.status);
-            d = {
-              TextConstants.check_status_id: item?.id ?? "",
-              TextConstants.check_status_assigned_to: item?.assignedto ?? "",
-              TextConstants.check_status_category_name: item?.category ?? "",
-              TextConstants.check_status_subcategory_name: item?.type ?? "",
-              TextConstants.check_status_time_stamp: item?.timestamp ?? "",
-              TextConstants.check_status_status: item?.status ?? "",
-            };
+            var len = _statusResponse?.viewGrievances?.length ?? 0;
+            for (var i = 0; i < len; i++) {
+              val.add(_statusResponse?.viewGrievances?[i]);
+              headers[_statusResponse?.viewGrievances?[i].type] = val;
 
-            switch (d[TextConstants.check_status_subcategory_name]) {
-              case TextConstants.checkstatus_repairs_to_footpath:
-                Repairstofootpath.add(d);
-                break;
-              case TextConstants.checkstatus_unauthorized_hoardings:
-                UnauthorizedHoardings.add(d);
-                break;
-              case TextConstants.checkstatus_cscpayment_not_updatedinportal:
-                CSCPaymentNotUpdatedinPortal.add(d);
-                break;
-              case TextConstants.checkstatus_previousyearstaxpayment:
-                PreviousYearsPropertyTaxPayment.add(d);
-                break;
-              case TextConstants.checkstatus_garbageburning:
-                GarbageBurning.add(d);
-                break;
-              case TextConstants.checkstatus_repairstoroad_potholes:
-                RepairstoRoadPotholes.add(d);
-                break;
+              var item = _statusResponse?.viewGrievances?[i];
+              _titles.add(item?.status);
+              d = {
+                TextConstants.check_status_id: item?.id ?? "",
+                TextConstants.check_status_assigned_to: item?.assignedto ?? "",
+                TextConstants.check_status_category_name: item?.category ?? "",
+                TextConstants.check_status_subcategory_name: item?.type ?? "",
+                TextConstants.check_status_time_stamp: item?.timestamp ?? "",
+                TextConstants.check_status_status: item?.status ?? "",
+              };
+
+              switch (d[TextConstants.check_status_subcategory_name]) {
+                case TextConstants.checkstatus_repairs_to_footpath:
+                  Repairstofootpath.add(d);
+                  break;
+                case TextConstants.checkstatus_unauthorized_hoardings:
+                  UnauthorizedHoardings.add(d);
+                  break;
+                case TextConstants.checkstatus_cscpayment_not_updatedinportal:
+                  CSCPaymentNotUpdatedinPortal.add(d);
+                  break;
+                case TextConstants.checkstatus_previousyearstaxpayment:
+                  PreviousYearsPropertyTaxPayment.add(d);
+                  break;
+                case TextConstants.checkstatus_garbageburning:
+                  GarbageBurning.add(d);
+                  break;
+                case TextConstants.checkstatus_repairstoroad_potholes:
+                  RepairstoRoadPotholes.add(d);
+                  break;
+              }
+              finalitems = {
+                TextConstants.checkstatus_repairs_to_footpath:
+                    Repairstofootpath,
+                TextConstants.checkstatus_unauthorized_hoardings:
+                    UnauthorizedHoardings,
+                TextConstants.checkstatus_cscpayment_not_updatedinportal:
+                    CSCPaymentNotUpdatedinPortal,
+                TextConstants.checkstatus_previousyearstaxpayment:
+                    PreviousYearsPropertyTaxPayment,
+                TextConstants.checkstatus_garbageburning: GarbageBurning,
+                TextConstants.checkstatus_repairstoroad_potholes:
+                    RepairstoRoadPotholes
+              };
             }
-            finalitems = {
-              TextConstants.checkstatus_repairs_to_footpath: Repairstofootpath,
-              TextConstants.checkstatus_unauthorized_hoardings: UnauthorizedHoardings,
-              TextConstants.checkstatus_cscpayment_not_updatedinportal: CSCPaymentNotUpdatedinPortal,
-              TextConstants.checkstatus_previousyearstaxpayment:
-                  PreviousYearsPropertyTaxPayment,
-              TextConstants.checkstatus_garbageburning: GarbageBurning,
-              TextConstants.checkstatus_repairstoroad_potholes: RepairstoRoadPotholes
-            };
+
+            finalitemsResponse = finalitems.values.toList();
+            finalitemsSearchListResponse = finalitemsResponse;
           }
+        } else {
+          viewgrievanceflag = false;
+          showAlert("${data.message}");
         }
-
-        finalitemsResponse = finalitems.values.toList();
-        finalitemsSearchListResponse = finalitemsResponse;
-
-        finalitemsResponse.forEach((element) {
-          for (var i = 0; i < element.length; i++) {
-            print(element[i]["Subcategory Name"]);
-            print(element[i]["Category Name"]);
-            print(element[i]["ID"]);
-          }
-        });
-        // print("final response ${finalitemsResponse.length} ");
       });
     } on DioError catch (e) {
       print(e);

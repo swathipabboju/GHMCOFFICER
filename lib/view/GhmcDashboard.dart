@@ -206,6 +206,7 @@ class _GhmcDashboardState extends State<GhmcDashboard> {
                               textcolor: Colors.white,
                               onPressed: () {
                                 EasyLoading.show();
+                                
                                 Navigator.pushNamed(
                                     context, AppRoutes.checkstatusnew);
                               }),

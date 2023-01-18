@@ -72,22 +72,31 @@ class _MpinState extends State<Mpin> {
                               .readTheData(PreferenceConstants.designation);
                           var roleId = await SharedPreferencesClass()
                               .readTheData(PreferenceConstants.roleId);
-                          print("role---${roleId}  ");
+                          print("mpin---${res}  ");
+                          print("enters mpin ${mpinValue}");
                           // print("read mpin from  sahredpref in login is  ${res}");
                           // print("user enterd value in login screen ${mpinValue}");
                           if (res == mpinValue) {
                             if (roleId == "33") {
                               Navigator.pushNamed(
                                   context, AppRoutes.corporatordashboard);
-                            } else if (des == "Concessionaire Incharge") {
+                              print("roleid ${roleId}");
+                              mpinValue = '';
+                            }  if (des == "Concessionaire Incharge") {
                               Navigator.pushNamed(
                                   context, AppRoutes.concessionairedashboard);
+                              print("desconce ${des}");
+                              mpinValue = '';
                             } else if (des == "Plant Assistant") {
                               Navigator.pushNamed(
                                   context, AppRoutes.plantdashnoard);
+                              mpinValue = '';
+                              print("desplant ${des}");
                             } else {
                               Navigator.pushNamed(
                                   context, AppRoutes.ghmcdashboard);
+                              print("desghmc ${des}");
+                              mpinValue = '';
                             }
                           } else {
                             showAlert(TextConstants.invalid_mpin);

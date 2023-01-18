@@ -20,6 +20,8 @@ import '../../model/concessioner/concessionaire_pickup_capturelist_res.dart'
     as pickupcapturelist;
 
 class AppConstants {
+  static String frommap = "";
+
   AppConstants._();
   static String mysplashscreen = "/mysplashscreen";
   static String userid = "cgg@ghmc";
@@ -77,6 +79,7 @@ class AppConstants {
 
   static double? custominfowindowlat;
   static double? custominfowindowlong;
+ 
 
   
 }

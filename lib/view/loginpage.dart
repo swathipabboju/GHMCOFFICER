@@ -18,7 +18,7 @@ class Loginpage extends StatefulWidget {
 }
 
 class _LoginpageState extends State<Loginpage> {
-  TextEditingController number = TextEditingController();
+  TextEditingController number = TextEditingController(text: "8008554962");
   final _formKey = GlobalKey<FormState>();
   FocusNode myFocusNode = new FocusNode();
   bool _isLoading = false;
@@ -170,50 +170,60 @@ class _LoginpageState extends State<Loginpage> {
         // print(ResponseData.status);
 
         if (ResponseData?.status == 'M') {
-          if (ResponseData?.mpin != null ||
-              ResponseData?.cATEGORY != null ||
-              ResponseData?.dESIGNATION != null ||
-              ResponseData?.eMPD != null ||
-              ResponseData?.eMPNAME != null ||
-              ResponseData?.mOBILENO != null ||
-              ResponseData?.otp != null ||
-              ResponseData?.tOKENID != null ||
-              ResponseData?.tYPEID != null) {
-            SharedPreferencesClass().writeTheData(
-                PreferenceConstants.mobileno, ResponseData?.mOBILENO);
-            SharedPreferencesClass()
+          print("checking ${ResponseData?.mpin.runtimeType}");
+          if (ResponseData?.mpin != null) {
+            await SharedPreferencesClass()
                 .writeTheData(PreferenceConstants.mpin, ResponseData?.mpin);
-            SharedPreferencesClass().writeTheData(
-                PreferenceConstants.category, ResponseData?.cATEGORY);
-
-            SharedPreferencesClass().writeTheData(
-                PreferenceConstants.designation, ResponseData?.dESIGNATION);
-
-            SharedPreferencesClass()
-                .writeTheData(PreferenceConstants.empd, ResponseData?.eMPD);
-
-            SharedPreferencesClass()
-                .writeTheData(PreferenceConstants.name, ResponseData?.eMPNAME);
-
-            SharedPreferencesClass().writeTheData(
-                PreferenceConstants.message, ResponseData?.message);
-
-            SharedPreferencesClass()
-                .writeTheData(PreferenceConstants.status, ResponseData?.status);
-
-            SharedPreferencesClass().writeTheData(
-                PreferenceConstants.tokenId, ResponseData?.tOKENID);
-
-            SharedPreferencesClass()
-                .writeTheData(PreferenceConstants.typeid, ResponseData?.tYPEID);
-
-            SharedPreferencesClass()
-                .writeTheData(PreferenceConstants.roleId, ResponseData?.roleId);
-
-            SharedPreferencesClass()
-                .writeTheData(PreferenceConstants.ward, ResponseData?.ward);
-            //print('pin is $pin');
           }
+          if (ResponseData?.dESIGNATION != null) {
+            await SharedPreferencesClass().writeTheData(
+                PreferenceConstants.designation, ResponseData?.dESIGNATION);
+          }
+          if (ResponseData?.eMPD != null) {
+            await SharedPreferencesClass()
+                .writeTheData(PreferenceConstants.empd, ResponseData?.eMPD);
+          }
+          if (ResponseData?.eMPNAME != null) {
+            await SharedPreferencesClass()
+                .writeTheData(PreferenceConstants.name, ResponseData?.eMPNAME);
+          }
+          if (ResponseData?.message != null) {
+            await SharedPreferencesClass().writeTheData(
+                PreferenceConstants.message, ResponseData?.message);
+          }
+          if (ResponseData?.status != null) {
+            await SharedPreferencesClass()
+                .writeTheData(PreferenceConstants.status, ResponseData?.status);
+          }
+          if (ResponseData?.tOKENID != null) {
+            await SharedPreferencesClass().writeTheData(
+                PreferenceConstants.tokenId, ResponseData?.tOKENID);
+          }
+          if (ResponseData?.tYPEID != null) {
+            await SharedPreferencesClass()
+                .writeTheData(PreferenceConstants.typeid, ResponseData?.tYPEID);
+          }
+          if (ResponseData?.roleId != null) {
+            await SharedPreferencesClass()
+                .writeTheData(PreferenceConstants.roleId, ResponseData?.roleId);
+          }
+          if (ResponseData?.ward != null) {
+            await SharedPreferencesClass()
+                .writeTheData(PreferenceConstants.ward, ResponseData?.ward);
+          }
+
+          /* 
+           
+
+            
+            
+
+           
+
+            
+
+             */
+          //print('pin is $pin');
 
           Navigator.pushNamed(context, AppRoutes.newmpin);
         } else if (ResponseData?.status == 'O') {
