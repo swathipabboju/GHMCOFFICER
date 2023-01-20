@@ -1,14 +1,18 @@
+import 'dart:async';
+
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:ghmcofficerslogin/model/concessioner/c_incharge_ticketlist_req.dart';
 import 'package:ghmcofficerslogin/model/concessioner/c_incharge_ticketlist_res.dart';
 
-
-
 import 'package:ghmcofficerslogin/model/shared_model.dart';
 import 'package:ghmcofficerslogin/res/components/background_image.dart';
+import 'package:ghmcofficerslogin/res/components/internetcheck.dart';
 import 'package:ghmcofficerslogin/res/components/searchbar.dart';
 import 'package:ghmcofficerslogin/res/components/sharedpreference.dart';
+import 'package:ghmcofficerslogin/res/components/showtoasts.dart';
 import 'package:ghmcofficerslogin/res/components/textwidget.dart';
 import 'package:ghmcofficerslogin/res/constants/ApiConstants/api_constants.dart';
 import 'package:ghmcofficerslogin/res/constants/app_constants.dart';
@@ -28,12 +32,13 @@ class _CInchargeTicketListState extends State<CInchargeTicketList> {
   CInchargeTicketListRes? _cInchargeTicketListRes;
   List<ChargeTicketList> ticketlistResponse = [];
   List<ChargeTicketList> ticketlistSearchListResponse = [];
+  StreamSubscription? connection;
+  bool isoffline = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.white,
-          
           leading: IconButton(
               icon: Icon(Icons.arrow_back, color: Colors.black),
               onPressed: (() {
@@ -44,8 +49,10 @@ class _CInchargeTicketListState extends State<CInchargeTicketList> {
           title: Center(
             child: Text(
               "Concenssionaire Incharge Pickup Capture list",
-              style:
-                   TextStyle(color: Colors.black, fontWeight: FontWeight.bold,fontSize: 14),
+              style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14),
             ),
           ),
         ),
@@ -69,21 +76,34 @@ class _CInchargeTicketListState extends State<CInchargeTicketList> {
                     child: Padding(
                   padding: const EdgeInsets.only(top: 10.0),
                   child: ListView.builder(
-                      itemCount: ticketlistSearchListResponse.length ,
+                      itemCount: ticketlistSearchListResponse.length,
                       itemBuilder: (context, index) {
-                        final details =
-                            ticketlistSearchListResponse[index];
+                        final details = ticketlistSearchListResponse[index];
 
                         return GestureDetector(
                           onTap: () async {
+                            var result =
+                                await Connectivity().checkConnectivity();
+
                             //
                             AppConstants.c_incharge_ticket_list =
                                 _cInchargeTicketListRes?.ticketList?[index];
-                                 AppConstants.c_incharge_ticket_list_vehicle_list =
-                                _cInchargeTicketListRes?.ticketList?[index].vehicleList?[index];
-                            
-                            Navigator.pushNamed(
-                                context, AppRoutes.cinchargeticketdetails);
+                            AppConstants.c_incharge_ticket_list_vehicle_list =
+                                _cInchargeTicketListRes
+                                    ?.ticketList?[index].vehicleList?[index];
+                            if (result == ConnectivityResult.wifi ||
+                                result == ConnectivityResult.mobile ||
+                                result == ConnectivityResult.ethernet ||
+                                result == ConnectivityResult.vpn ||
+                                result == ConnectivityResult.bluetooth) {
+                              Navigator.pushNamed(
+                                  context, AppRoutes.cinchargeticketdetails);
+                            } else if (result == ConnectivityResult.none) {
+                              ShowToats.showToast(TextConstants.internetcheck,
+                                  bgcolor: Colors.white,
+                                  gravity: ToastGravity.BOTTOM,
+                                  textcolor: Colors.black);
+                            }
                           },
                           child: Padding(
                             padding:
@@ -128,7 +148,7 @@ class _CInchargeTicketListState extends State<CInchargeTicketList> {
                                           .concessionaire_pickup_capturelist_estimationwaste,
                                       details.eSTWT,
                                     ),
-                                     Padding(
+                                    Padding(
                                       padding:
                                           const EdgeInsets.only(bottom: 8.0),
                                       child: Image.network(
@@ -137,18 +157,18 @@ class _CInchargeTicketListState extends State<CInchargeTicketList> {
                                         width: 100.0,
                                         errorBuilder:
                                             (context, error, stackTrace) {
-                                          return  Image.asset(
-                                  ImageConstants.no_uploaded,
-                                  width: 200.0,
-                                  height: 100.0,
-                                  );  /* Image.asset(
+                                          return Image.asset(
+                                            ImageConstants.no_uploaded,
+                                            width: 200.0,
+                                            height: 100.0,
+                                          ); /* Image.asset(
                                   ImageConstants.ghmc_logo_new,
                                   width: 200.0,
                                   height: 100.0,
                                   ); */
                                         },
                                       ),
-                                    ), 
+                                    ),
                                   ],
                                 ),
                               ),
@@ -259,6 +279,7 @@ class _CInchargeTicketListState extends State<CInchargeTicketList> {
 
   @override
   void initState() {
+    NetCheck();
     // TODO: implement initState
     super.initState();
     getdetails();

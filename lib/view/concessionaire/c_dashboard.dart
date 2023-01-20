@@ -1,12 +1,19 @@
+import 'dart:async';
+
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:ghmcofficerslogin/model/shared_model.dart';
+import 'package:ghmcofficerslogin/res/components/internetcheck.dart';
 import 'package:ghmcofficerslogin/res/components/logo_details.dart';
 import 'package:ghmcofficerslogin/res/components/sharedpreference.dart';
+import 'package:ghmcofficerslogin/res/components/showtoasts.dart';
 import 'package:ghmcofficerslogin/res/components/textwidget.dart';
 import 'package:ghmcofficerslogin/res/constants/ApiConstants/api_constants.dart';
 import 'package:ghmcofficerslogin/res/constants/Images/image_constants.dart';
 import 'package:ghmcofficerslogin/res/constants/routes/app_routes.dart';
+import 'package:ghmcofficerslogin/view/loginpage.dart';
 
 import '../../model/concessioner/concessionaire_dashboard_request.dart';
 import '../../model/concessioner/concessioner_dashboard_list_res.dart';
@@ -23,6 +30,8 @@ class ConcessionaireDashboard extends StatefulWidget {
 
 class _ConcessionaireDashboardState extends State<ConcessionaireDashboard> {
   ConcessionerDashboardListRes? _concessionerDashboardListRes;
+  StreamSubscription? connection;
+  bool isoffline = false;
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -49,15 +58,29 @@ class _ConcessionaireDashboardState extends State<ConcessionaireDashboard> {
                         return Column(
                           children: [
                             GestureDetector(
-                              onTap: (() {
+                              onTap: (() async {
+                                var result =
+                                    await Connectivity().checkConnectivity();
                                 if (_concessionerDashboardListRes
                                         ?.aMOHList?[index]
                                         .cONCESSIONERTICKETSCOUNT ==
                                     "0") {
                                   showAlert("No records availble");
                                 } else {
-                                  Navigator.pushNamed(
-                                      context, AppRoutes.cinchargeticketlist);
+                                  if (result == ConnectivityResult.wifi ||
+                                      result == ConnectivityResult.mobile ||
+                                      result == ConnectivityResult.ethernet ||
+                                      result == ConnectivityResult.vpn ||
+                                      result == ConnectivityResult.bluetooth) {
+                                    Navigator.pushNamed(
+                                        context, AppRoutes.cinchargeticketlist);
+                                  } else {
+                                    ShowToats.showToast(
+                                        TextConstants.internetcheck,
+                                        bgcolor: Colors.white,
+                                        gravity: ToastGravity.BOTTOM,
+                                        textcolor: Colors.black);
+                                  }
                                 }
                               }),
                               child: Card(
@@ -73,7 +96,7 @@ class _ConcessionaireDashboardState extends State<ConcessionaireDashboard> {
                                         color: Colors.white, fontSize: 16.0),
                                   ),
                                   trailing: Text(
-                                    "${_concessionerDashboardListRes?.aMOHList?[index].cONCESSIONERTICKETSCOUNT}",
+                                    "${_concessionerDashboardListRes?.aMOHList?[index].cONCESSIONERTICKETSCOUNT}" ?? "",
                                     style: TextStyle(
                                         color: Colors.white, fontSize: 16.0),
                                   ),
@@ -81,18 +104,33 @@ class _ConcessionaireDashboardState extends State<ConcessionaireDashboard> {
                               ),
                             ),
                             GestureDetector(
-                              onTap: (() {
+                              onTap: (() async {
                                 if (_concessionerDashboardListRes
                                         ?.aMOHList?[index]
                                         .cONCESSIONERPICKUPCAPTURECOUNT ==
                                     "0") {
                                   showAlert("No records available");
                                 } else {
+                                  var result =
+                                      await Connectivity().checkConnectivity();
                                   print("data");
-                                  Navigator.pushNamed(
-                                      context,
-                                      AppRoutes
-                                          .concessionairinchargepickupcapturelist);
+                                  if (result == ConnectivityResult.mobile ||
+                                      result == ConnectivityResult.wifi ||
+                                      result == ConnectivityResult.bluetooth ||
+                                      result == ConnectivityResult.ethernet ||
+                                      result == ConnectivityResult.vpn) {
+                                    Navigator.pushNamed(
+                                        context,
+                                        AppRoutes
+                                            .concessionairinchargepickupcapturelist);
+                                  } else if (result ==
+                                      ConnectivityResult.none) {
+                                    ShowToats.showToast(
+                                        TextConstants.internetcheck,
+                                        bgcolor: Colors.white,
+                                        gravity: ToastGravity.BOTTOM,
+                                        textcolor: Colors.black);
+                                  }
                                 }
                               }),
                               child: Card(
@@ -108,7 +146,7 @@ class _ConcessionaireDashboardState extends State<ConcessionaireDashboard> {
                                         color: Colors.white, fontSize: 16.0),
                                   ),
                                   trailing: Text(
-                                    "${_concessionerDashboardListRes?.aMOHList?[index].cONCESSIONERPICKUPCAPTURECOUNT}",
+                                    "${_concessionerDashboardListRes?.aMOHList?[index].cONCESSIONERPICKUPCAPTURECOUNT}" ?? "",
                                     style: TextStyle(
                                         color: Colors.white, fontSize: 16.0),
                                   ),
@@ -116,15 +154,29 @@ class _ConcessionaireDashboardState extends State<ConcessionaireDashboard> {
                               ),
                             ),
                             GestureDetector(
-                              onTap: (() {
+                              onTap: (() async {
+                                var result =
+                                    await Connectivity().checkConnectivity();
                                 if (_concessionerDashboardListRes
                                         ?.aMOHList?[index]
                                         .cONCESSIONERREJECTEDCOUNT ==
                                     "0") {
                                   showAlert("No records available");
                                 } else {
-                                  Navigator.pushNamed(
-                                      context, AppRoutes.crejectionticketlist);
+                                  if (result == ConnectivityResult.wifi ||
+                                      result == ConnectivityResult.mobile ||
+                                      result == ConnectivityResult.ethernet ||
+                                      result == ConnectivityResult.vpn ||
+                                      result == ConnectivityResult.bluetooth) {
+                                    Navigator.pushNamed(context,
+                                        AppRoutes.crejectionticketlist);
+                                  } else {
+                                    ShowToats.showToast(
+                                        TextConstants.internetcheck,
+                                        bgcolor: Colors.white,
+                                        gravity: ToastGravity.BOTTOM,
+                                        textcolor: Colors.black);
+                                  }
                                 }
                               }),
                               child: Card(
@@ -140,7 +192,7 @@ class _ConcessionaireDashboardState extends State<ConcessionaireDashboard> {
                                         color: Colors.white, fontSize: 16.0),
                                   ),
                                   trailing: Text(
-                                    "${_concessionerDashboardListRes?.aMOHList?[index].cONCESSIONERREJECTEDCOUNT}",
+                                    "${_concessionerDashboardListRes?.aMOHList?[index].cONCESSIONERREJECTEDCOUNT}" ?? "",
                                     style: TextStyle(
                                         color: Colors.white, fontSize: 16.0),
                                   ),
@@ -148,15 +200,29 @@ class _ConcessionaireDashboardState extends State<ConcessionaireDashboard> {
                               ),
                             ),
                             GestureDetector(
-                              onTap: (() {
+                              onTap: (() async {
+                                var result =
+                                    await Connectivity().checkConnectivity();
                                 if (_concessionerDashboardListRes
                                         ?.aMOHList?[index]
                                         .cONCESSIONERCLOSEDCOUNT ==
                                     "0") {
                                   showAlert("No records available");
                                 } else {
-                                  Navigator.pushNamed(
-                                      context, AppRoutes.cclosedlist);
+                                  if (result == ConnectivityResult.wifi ||
+                                      result == ConnectivityResult.mobile ||
+                                      result == ConnectivityResult.ethernet ||
+                                      result == ConnectivityResult.vpn ||
+                                      result == ConnectivityResult.bluetooth) {
+                                    Navigator.pushNamed(
+                                        context, AppRoutes.cclosedlist);
+                                  } else {
+                                    ShowToats.showToast(
+                                        TextConstants.internetcheck,
+                                        bgcolor: Colors.white,
+                                        gravity: ToastGravity.BOTTOM,
+                                        textcolor: Colors.black);
+                                  }
                                 }
                               }),
                               child: Card(
@@ -172,7 +238,7 @@ class _ConcessionaireDashboardState extends State<ConcessionaireDashboard> {
                                         color: Colors.white, fontSize: 16.0),
                                   ),
                                   trailing: Text(
-                                    "${_concessionerDashboardListRes?.aMOHList?[index].cONCESSIONERCLOSEDCOUNT}",
+                                    "${_concessionerDashboardListRes?.aMOHList?[index].cONCESSIONERCLOSEDCOUNT}" ?? "",
                                     style: TextStyle(
                                         color: Colors.white, fontSize: 16.0),
                                   ),
@@ -180,17 +246,32 @@ class _ConcessionaireDashboardState extends State<ConcessionaireDashboard> {
                               ),
                             ),
                             GestureDetector(
-                              onTap: (() {
+                              onTap: (() async {
+                                var result =
+                                    await Connectivity().checkConnectivity();
+
                                 if (_concessionerDashboardListRes
                                         ?.aMOHList?[index]
                                         .cONCESSIONERCLOSINGTICKETCOUNT ==
                                     "0") {
                                   showAlert("No records available");
                                 } else {
-                                  Navigator.pushNamed(
-                                      context,
-                                      AppRoutes
-                                          .concessionaireinchargemanualclosingticketslist);
+                                  if (result == ConnectivityResult.wifi ||
+                                      result == ConnectivityResult.mobile ||
+                                      result == ConnectivityResult.ethernet ||
+                                      result == ConnectivityResult.vpn ||
+                                      result == ConnectivityResult.bluetooth) {
+                                    Navigator.pushNamed(
+                                        context,
+                                        AppRoutes
+                                            .concessionaireinchargemanualclosingticketslist);
+                                  } else {
+                                    ShowToats.showToast(
+                                        TextConstants.internetcheck,
+                                        bgcolor: Colors.white,
+                                        gravity: ToastGravity.BOTTOM,
+                                        textcolor: Colors.black);
+                                  }
                                 }
                               }),
                               child: Card(
@@ -206,7 +287,7 @@ class _ConcessionaireDashboardState extends State<ConcessionaireDashboard> {
                                         color: Colors.white, fontSize: 16.0),
                                   ),
                                   trailing: Text(
-                                    "${_concessionerDashboardListRes?.aMOHList?[index].cONCESSIONERCLOSINGTICKETCOUNT}",
+                                    "${_concessionerDashboardListRes?.aMOHList?[index].cONCESSIONERCLOSINGTICKETCOUNT}" ?? "",
                                     style: TextStyle(
                                         color: Colors.white, fontSize: 16.0),
                                   ),
@@ -225,9 +306,17 @@ class _ConcessionaireDashboardState extends State<ConcessionaireDashboard> {
 
   @override
   void initState() {
+    NetCheck();
     // TODO: implement initState
     super.initState();
+
     GetDetails();
+  }
+
+  @override
+  void dispose() {
+    connection?.cancel();
+    super.dispose();
   }
 
   showAlert(String message, {String text = ""}) {
@@ -328,7 +417,7 @@ class MySliverAppBar extends SliverPersistentHeaderDelegate {
                   ),
                   IconButton(
                     onPressed: () {
-                      Navigator.pop(context);
+                      Navigator.popUntil(context, ModalRoute.withName(AppRoutes.myloginpage));
                     },
                     icon: const Icon(
                       Icons.exit_to_app,

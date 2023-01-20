@@ -1,7 +1,10 @@
+import 'dart:async';
 import 'dart:io';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:ghmcofficerslogin/model/concessioner/c_pickup_capture_submit_res.dart';
 import 'package:ghmcofficerslogin/model/concessioner/concessionaire_pickup_capture_bind_plantname_req.dart';
 import 'package:ghmcofficerslogin/model/concessioner/concessionaire_pickup_capture_bindplantname_res.dart';
@@ -9,6 +12,7 @@ import 'package:ghmcofficerslogin/model/concessioner/conecssionare_pickup_captur
 import 'package:ghmcofficerslogin/model/shared_model.dart';
 import 'package:ghmcofficerslogin/res/components/background_image.dart';
 import 'package:ghmcofficerslogin/res/components/button.dart';
+import 'package:ghmcofficerslogin/res/components/internetcheck.dart';
 import 'package:ghmcofficerslogin/res/components/showalert.dart';
 import 'package:ghmcofficerslogin/res/components/showtoast.dart';
 import 'package:ghmcofficerslogin/res/components/textwidget.dart';
@@ -22,7 +26,6 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../res/components/sharedpreference.dart';
 import '../../res/constants/text_constants/text_constants.dart';
-
 
 class ConcessionairePickupCapture extends StatefulWidget {
   const ConcessionairePickupCapture({super.key});
@@ -59,8 +62,10 @@ class _ConcessionairePickupCaptureState
 
   File? _image;
   File? _image2;
-  
+
   List<VEHICLELIST>? _vehicledetailslist;
+  StreamSubscription? connection;
+  bool isoffline = false;
   Future getImage(ImageSource type) async {
     final img = await ImagePicker().pickImage(source: type);
     if (img == null) return;
@@ -387,33 +392,57 @@ class _ConcessionairePickupCaptureState
                   child: textButton(
                     text: TextConstants.concessionaire_pickup_capture_submit,
                     textcolor: Colors.white,
-                    onPressed: () {
-                      if (vehicleNumbersDropdown.value == "Select Vehicle No") {
-                        ShowToats.showToast("Please select vehicle no");
-                      } else if (_image?.path == null) {
-                        ShowToats.showToast("Please select image ");
-                      } else if (bindplantnamesdropdown.value ==
-                          "Select Plant Name") {
-                        ShowToats.showToast("Please select plant name");
-                      } else if (drivername.text.isEmpty) {
-                        ShowToats.showToast("Please enter driver name");
-                      } else if (mobilenumber.text.isEmpty ||
-                          mobilenumber.text.length < 10) {
-                        ShowToats.showToast(
-                            "Please enter 10 digit mobile number");
-                      } else if (!mobilenumber.text.startsWith("9") &&
-                          !mobilenumber.text.startsWith("8") &&
-                          !mobilenumber.text.startsWith("7")) {
-                        ShowToats.showToast(
-                            "Please enter  mobile number starts with 9 or 8 or 7");
-                      } else if (vehicletypesdropdown.value ==
-                          "Select Vehicle Type") {
-                        ShowToats.showToast("Please select vehicle type");
-                      } else if (submit_yes) {
-                        if (_image2?.path == null) {
-                          ShowToats.showToast("Please select after trip image");
+                    onPressed: () async {
+                      var result = await Connectivity().checkConnectivity();
+                      if (result == ConnectivityResult.wifi || result == ConnectivityResult.mobile || result == ConnectivityResult.vpn || result == ConnectivityResult.ethernet || result == ConnectivityResult.bluetooth) {
+                        if (vehicleNumbersDropdown.value ==
+                            "Select Vehicle No") {
+                          ShowToats.showToast("Please select vehicle no");
+                        } else if (_image?.path == null) {
+                          ShowToats.showToast("Please select image ");
+                        } else if (bindplantnamesdropdown.value ==
+                            "Select Plant Name") {
+                          ShowToats.showToast("Please select plant name");
+                        } else if (drivername.text.isEmpty) {
+                          ShowToats.showToast("Please enter driver name");
+                        } else if (mobilenumber.text.isEmpty ||
+                            mobilenumber.text.length < 10) {
+                          ShowToats.showToast(
+                              "Please enter 10 digit mobile number");
+                        } else if (!mobilenumber.text.startsWith("9") &&
+                            !mobilenumber.text.startsWith("8") &&
+                            !mobilenumber.text.startsWith("7")) {
+                          ShowToats.showToast(
+                              "Please enter  mobile number starts with 9 or 8 or 7");
+                        } else if (vehicletypesdropdown.value ==
+                            "Select Vehicle Type") {
+                          ShowToats.showToast("Please select vehicle type");
+                        } else if (submit_yes) {
+                          if (_image2?.path == null) {
+                            ShowToats.showToast(
+                                "Please select after trip image");
+                          } else {
+                            submit_yes
+                                ? Alerts.showAlertDialog(context,
+                                    _cPickupCaptureSubmitRes?.sTATUSMESSAGE,
+                                    Title: "GHMC Officer App", onpressed: (() {
+                                    Navigator.popUntil(
+                                        context,
+                                        ModalRoute.withName(
+                                            AppRoutes.concessionairedashboard));
+                                    vehicleNumbersDropdown.value =
+                                        "Select Vehicle No";
+                                    vehicletypesdropdown.value =
+                                        "Select Vehicle Type";
+                                    bindplantnamesdropdown.value =
+                                        "Select Plant Name";
+                                  }), buttontext: 'ok')
+                                : null;
+                          }
                         } else {
-                          submit_yes
+                          showSubmitAlert(TextConstants
+                              .concessionaire_pickup_capture_is_this_your_last_trip);
+                          submit_no
                               ? Alerts.showAlertDialog(context,
                                   _cPickupCaptureSubmitRes?.sTATUSMESSAGE,
                                   Title: "GHMC Officer App", onpressed: (() {
@@ -428,29 +457,15 @@ class _ConcessionairePickupCaptureState
                                   bindplantnamesdropdown.value =
                                       "Select Plant Name";
                                 }), buttontext: 'ok')
+                              // ? onSubmitNo(
+                              //     "${_cPickupCaptureSubmitRes?.sTATUSMESSAGE}")
                               : null;
                         }
-                      } else {
-                        showSubmitAlert(TextConstants
-                            .concessionaire_pickup_capture_is_this_your_last_trip);
-                        submit_no
-                            ? Alerts.showAlertDialog(context,
-                                _cPickupCaptureSubmitRes?.sTATUSMESSAGE,
-                                Title: "GHMC Officer App", onpressed: (() {
-                                Navigator.popUntil(
-                                    context,
-                                    ModalRoute.withName(
-                                        AppRoutes.concessionairedashboard));
-                                vehicleNumbersDropdown.value =
-                                    "Select Vehicle No";
-                                vehicletypesdropdown.value =
-                                    "Select Vehicle Type";
-                                bindplantnamesdropdown.value =
-                                    "Select Plant Name";
-                              }), buttontext: 'ok')
-                            // ? onSubmitNo(
-                            //     "${_cPickupCaptureSubmitRes?.sTATUSMESSAGE}")
-                            : null;
+                      } else if (result == ConnectivityResult.none) {
+                        ShowToats.showToast(TextConstants.internetcheck,
+                        bgcolor: Colors.white,textcolor: Colors.black,
+                        gravity: ToastGravity.CENTER
+                        );
                       }
                     },
                   ),
@@ -600,6 +615,7 @@ class _ConcessionairePickupCaptureState
 
   @override
   void initState() {
+    NetCheck();
     // TODO: implement initState
     super.initState();
     // print("item list ${Constants.ticktetitemslist?.tICKETID}");
@@ -784,7 +800,9 @@ class _ConcessionairePickupCaptureState
                             borderRadius: BorderRadius.circular(25),
                             color: Color.fromARGB(255, 139, 33, 25)),
                         child: TextButton(
-                          onPressed: () {
+                          onPressed: () async {
+                            var result =
+                                await Connectivity().checkConnectivity();
                             setState(() {
                               submit_no = true;
                               is_yes_flag = "Y";

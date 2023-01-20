@@ -1,10 +1,15 @@
+import 'dart:async';
+
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:ghmcofficerslogin/model/c_closed_list_req.dart';
 import 'package:ghmcofficerslogin/model/c_closed_list_res.dart';
 import 'package:ghmcofficerslogin/model/shared_model.dart';
+import 'package:ghmcofficerslogin/res/components/internetcheck.dart';
 import 'package:ghmcofficerslogin/res/components/searchbar.dart';
+import 'package:ghmcofficerslogin/res/components/showtoasts.dart';
 import 'package:ghmcofficerslogin/res/constants/ApiConstants/api_constants.dart';
 import 'package:ghmcofficerslogin/res/constants/routes/app_routes.dart';
 import '../../res/components/background_image.dart';
@@ -23,12 +28,13 @@ class _CClosedListState extends State<CClosedList> {
   CClosedListRes? _cClosedListRes;
   List<TicketList> ticketlistResponse = [];
   List<TicketList> ticketlistSearchListResponse = [];
+  StreamSubscription? connection;
+  bool isoffline = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.white,
-        
           leading: IconButton(
               icon: Icon(Icons.arrow_back, color: Colors.black),
               onPressed: (() {
@@ -39,8 +45,10 @@ class _CClosedListState extends State<CClosedList> {
           title: Center(
             child: Text(
               "Concenssionaire  Incharge Ticket list",
-              style:
-                  TextStyle(color: Colors.black, fontWeight: FontWeight.bold,fontSize: 14),
+              style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14),
             ),
           ),
         ),
@@ -72,7 +80,14 @@ class _CClosedListState extends State<CClosedList> {
 
                         return GestureDetector(
                           onTap: () async {
-                           /*  Navigator.pushNamed(
+                            var result =
+                                await Connectivity().checkConnectivity();
+                                if (result == ConnectivityResult.wifi ||result == ConnectivityResult.mobile || result == ConnectivityResult.bluetooth || result == ConnectivityResult.vpn || result == ConnectivityResult.ethernet) {
+                              // navigate
+                            } else if (result == ConnectivityResult.none) {
+                              ShowToats.showToast(TextConstants.internetcheck);
+                            }
+                            /*  Navigator.pushNamed(
                                 context, AppRoutes.concessionairepickupcapture); */
                           },
                           child: Padding(
@@ -101,53 +116,46 @@ class _CClosedListState extends State<CClosedList> {
                                       details.lOCATION,
                                     ),
                                     Line(),
-                                     RowComponent(
+                                    RowComponent(
                                       TextConstants
                                           .c_closed_list_ticketraiseddate,
                                       details.tICKETRAISEDDATE,
                                     ),
                                     Line(),
-                                     RowComponent(
-                                      TextConstants
-                                          .c_closed_list_closeddate,
+                                    RowComponent(
+                                      TextConstants.c_closed_list_closeddate,
                                       details.tICKETCLOSEDDATE,
                                     ),
                                     Line(),
-                                     RowComponent(
+                                    RowComponent(
                                       TextConstants
                                           .concenssionaire_incharge_manual_closing_tcikets_zone,
                                       details.zONENAME,
                                     ),
                                     Line(),
-                                     RowComponent(
+                                    RowComponent(
                                       TextConstants
                                           .concenssionaire_incharge_manual_closing_tcikets_circle,
                                       details.cIRCLENAME,
                                     ),
                                     Line(),
-                                     RowComponent(
+                                    RowComponent(
                                       TextConstants
                                           .concenssionaire_incharge_manual_closing_tcikets_ward,
                                       details.wARDNAME,
                                     ),
                                     Line(),
-                                      RowComponent(
+                                    RowComponent(
                                       TextConstants
                                           .c_closed_list_concessionairename,
                                       details.cONCESSIONERNAME,
                                     ),
                                     Line(),
-                                     RowComponent(
+                                    RowComponent(
                                       TextConstants
                                           .concenssionaire_incharge_manual_closing_tcikets_status,
                                       details.sTATUS,
                                     ),
-                                     
-                                  
-                                    
-                                  
-                                  
-                                   
                                     Padding(
                                       padding:
                                           const EdgeInsets.only(bottom: 8.0),
@@ -166,8 +174,6 @@ class _CClosedListState extends State<CClosedList> {
                                         },
                                       ),
                                     ),
-
-                                    
                                   ],
                                 ),
                               ),
@@ -176,26 +182,26 @@ class _CClosedListState extends State<CClosedList> {
                         );
                       }),
                 )),
-                 Align(
-                alignment: Alignment.bottomCenter,
-                child: Container(
-                  color: Colors.transparent,
-                  padding: EdgeInsets.all(6.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "Rights Reserved @ GHMC",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      Text(
-                        "Powered By CGG",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ],
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Container(
+                    color: Colors.transparent,
+                    padding: EdgeInsets.all(6.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Rights Reserved @ GHMC",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        Text(
+                          "Powered By CGG",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              )
+                )
               ],
             ),
           ],
@@ -204,6 +210,7 @@ class _CClosedListState extends State<CClosedList> {
 
   @override
   void initState() {
+    NetCheck();
     // TODO: implement initState
     super.initState();
     getdetails();
@@ -230,9 +237,7 @@ class _CClosedListState extends State<CClosedList> {
         ticketlistSearchListResponse = ticketlistResponse;
       });
     } else if (data.sTATUSCODE == "400") {
-    } else if (data.sTATUSCODE == "600") {
-
-    }
+    } else if (data.sTATUSCODE == "600") {}
 
     print(response.data);
   }

@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -5,14 +8,14 @@ import 'package:ghmcofficerslogin/model/crejection_ticketlist_res.dart';
 import 'package:ghmcofficerslogin/model/crejectionlist_req.dart';
 import 'package:ghmcofficerslogin/model/shared_model.dart';
 import 'package:ghmcofficerslogin/res/components/background_image.dart';
+import 'package:ghmcofficerslogin/res/components/internetcheck.dart';
 import 'package:ghmcofficerslogin/res/components/searchbar.dart';
 import 'package:ghmcofficerslogin/res/components/sharedpreference.dart';
+import 'package:ghmcofficerslogin/res/components/showtoast.dart';
 import 'package:ghmcofficerslogin/res/constants/ApiConstants/api_constants.dart';
 import 'package:ghmcofficerslogin/res/constants/Images/image_constants.dart';
 import 'package:ghmcofficerslogin/res/constants/routes/app_routes.dart';
 import 'package:ghmcofficerslogin/res/constants/text_constants/text_constants.dart';
-
-
 
 class CRejectionTicketlist extends StatefulWidget {
   const CRejectionTicketlist({super.key});
@@ -25,6 +28,8 @@ class _CRejectionTicketlistState extends State<CRejectionTicketlist> {
   CRejectedTicketListRes? _cRejectedTicketListRes;
   List<TicketList> ticketlistResponse = [];
   List<TicketList> ticketlistSearchListResponse = [];
+  StreamSubscription? connection;
+  bool isoffline = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -40,8 +45,10 @@ class _CRejectionTicketlistState extends State<CRejectionTicketlist> {
           title: Center(
             child: Text(
               "Concenssionaire Incharge Pickup Capture list",
-              style:
-                  TextStyle(color: Colors.black, fontWeight: FontWeight.bold,fontSize: 14),
+              style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14),
             ),
           ),
         ),
@@ -66,13 +73,19 @@ class _CRejectionTicketlistState extends State<CRejectionTicketlist> {
                   padding: const EdgeInsets.only(top: 10.0),
                   child: ListView.builder(
                       itemCount: ticketlistSearchListResponse.length,
-                    
                       itemBuilder: (context, index) {
-                        final details =ticketlistSearchListResponse[index];
-                            
+                        final details = ticketlistSearchListResponse[index];
 
                         return GestureDetector(
                           onTap: () async {
+                            var result =
+                                await Connectivity().checkConnectivity();
+                            if (result == ConnectivityResult.wifi ||result == ConnectivityResult.mobile || result == ConnectivityResult.bluetooth || result == ConnectivityResult.vpn || result == ConnectivityResult.ethernet) {
+                              // navigate
+                            } else if (result == ConnectivityResult.none) {
+                              ShowToats.showToast(TextConstants.internetcheck);
+                            }
+
                             /* Navigator.pushNamed(
                                 context, AppRoutes.concessionairepickupcapture); */
                           },
@@ -123,11 +136,11 @@ class _CRejectionTicketlistState extends State<CRejectionTicketlist> {
                                         width: 100.0,
                                         errorBuilder:
                                             (context, error, stackTrace) {
-                                          return  Image.asset(
-                                  ImageConstants.no_uploaded,
-                                  width: 200.0,
-                                  height: 100.0,
-                                  );  /* Image.asset(
+                                          return Image.asset(
+                                            ImageConstants.no_uploaded,
+                                            width: 200.0,
+                                            height: 100.0,
+                                          ); /* Image.asset(
                                   ImageConstants.ghmc_logo_new,
                                   width: 200.0,
                                   height: 100.0,
@@ -144,25 +157,25 @@ class _CRejectionTicketlistState extends State<CRejectionTicketlist> {
                       }),
                 )),
                 Align(
-                alignment: Alignment.bottomCenter,
-                child: Container(
-                  color: Colors.transparent,
-                  padding: EdgeInsets.all(6.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "Rights Reserved @ GHMC",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      Text(
-                        "Powered By CGG",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ],
+                  alignment: Alignment.bottomCenter,
+                  child: Container(
+                    color: Colors.transparent,
+                    padding: EdgeInsets.all(6.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Rights Reserved @ GHMC",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        Text(
+                          "Powered By CGG",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              )
+                )
               ],
             ),
           ],
@@ -171,8 +184,10 @@ class _CRejectionTicketlistState extends State<CRejectionTicketlist> {
 
   @override
   void initState() {
+    NetCheck();
     // TODO: implement initState
     super.initState();
+
     getdetails();
   }
 
@@ -193,13 +208,10 @@ class _CRejectionTicketlistState extends State<CRejectionTicketlist> {
     final data = CRejectedTicketListRes.fromJson(response.data);
     if (data.sTATUSCODE == "200") {
       setState(() {
-         _cRejectedTicketListRes = data;
-      ticketlistResponse =
-                _cRejectedTicketListRes!.ticketList!;
-            ticketlistSearchListResponse = ticketlistResponse;
-        
+        _cRejectedTicketListRes = data;
+        ticketlistResponse = _cRejectedTicketListRes!.ticketList!;
+        ticketlistSearchListResponse = ticketlistResponse;
       });
-     
     } else if (data.sTATUSCODE == "400") {
     } else if (data.sTATUSCODE == "600") {}
 

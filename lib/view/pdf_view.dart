@@ -1,72 +1,72 @@
-/* import 'dart:io';
-
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:ghmc_officer/Res/constants/text_constants/text_constants.dart';
-import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
+import 'package:path_provider/path_provider.dart';
 
-class PdfViewer extends StatefulWidget {
-  const PdfViewer({super.key});
+
+class DownloadingDialog extends StatefulWidget {
+  final String filePath;
+   const DownloadingDialog({super.key, required this.filePath});
 
   @override
-  State<PdfViewer> createState() => _PdfViewerState();
+  State<DownloadingDialog> createState() => _DownloadingDialogState();
 }
 
-class _PdfViewerState extends State<PdfViewer> {
-  final GlobalKey<SfPdfViewerState> _pdfViewerKey = GlobalKey();
+class _DownloadingDialogState extends State<DownloadingDialog> {
+  Dio dio = Dio();
+  double progress = 0.0;
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(title: Text("PDF Viwer")),
-        body: SfPdfViewer.file(File(TextConstants.filepath)));
+  void startDownloading() async
+  {
+     String url = "${widget.filePath}";
+    const String fileName = "xyz.pdf";
+    String path = await _getFilePath(fileName);
 
-    // return SfPdfViewer.network(
-    //   'https://cdn.syncfusion.com/content/PDFViewer/flutter-succinctly.pdf',
-    //   key: _pdfViewerKey,
-    // );
+    await dio.download(url, path,
+    onReceiveProgress:(recievedBytes, totalBytes) {
+      setState(() {
+        progress = recievedBytes / totalBytes;
+      });
+      print(progress);
+    },
+    deleteOnError: true,
+    ).then((_) => {
+      Navigator.pop(context),
+    });
   }
-} */
-import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
-class PdfViewer extends StatefulWidget {
-  const PdfViewer({super.key});
+  Future<String> _getFilePath(String filename)
+  async {
+    final dir = await getApplicationDocumentsDirectory();
+    return "${dir.path}/$filename";
+  }
 
   @override
-  State<PdfViewer> createState() => _PdfViewerState();
-}
-
-class _PdfViewerState extends State<PdfViewer> {
-  final GlobalKey<SfPdfViewerState> _pdfViewerKey = GlobalKey();
-
- @override
   void initState() {
+    // TODO: implement initState
     super.initState();
+    startDownloading();
   }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Syncfusion Flutter PDF Viewer'),
-        actions: <Widget>[
-          IconButton(
-            icon: const Icon(
-              Icons.bookmark,
-              color: Colors.white,
-              semanticLabel: 'Bookmark',
-            ),
-            onPressed: () {
-              _pdfViewerKey.currentState?.openBookmarkView();
-            },
+    String downloadingprogress = (progress * 100).toInt().toString();
+    return AlertDialog(
+      backgroundColor: Colors.black,
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const CircularProgressIndicator.adaptive(),
+          const SizedBox(
+            height: 20,
           ),
+          Text("Downloading: $downloadingprogress%",
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 17.0,
+          ),
+          ),
+      
         ],
-      ),
-      body: SfPdfViewer.network(
-        'https://cdn.syncfusion.com/content/PDFViewer/flutter-succinctly.pdf',
-        key: _pdfViewerKey,
       ),
     );
   }
 }
-

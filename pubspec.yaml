@@ -65,6 +65,9 @@ dependencies:
   group_list_view: ^1.1.1
   intl: ^0.17.0
   flutter_launcher_icons: ^0.11.0
+  file_picker: ^5.2.5
+  share: ^2.0.4
+  path_provider: ^2.0.11
   
 
 dev_dependencies:

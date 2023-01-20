@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
@@ -6,6 +9,7 @@ import 'package:ghmcofficerslogin/model/concessioner/c_manual_closing_ticktes_su
 import 'package:ghmcofficerslogin/model/shared_model.dart';
 import 'package:ghmcofficerslogin/res/components/background_image.dart';
 import 'package:ghmcofficerslogin/res/components/button.dart';
+import 'package:ghmcofficerslogin/res/components/internetcheck.dart';
 import 'package:ghmcofficerslogin/res/components/showalert.dart';
 import 'package:ghmcofficerslogin/res/components/showtoast.dart';
 import 'package:ghmcofficerslogin/res/components/textwidget.dart';
@@ -34,6 +38,8 @@ class _ConcessionaireInchargeManualClosingTicketsState
   FocusNode myFocusNode = new FocusNode();
   List<String>? ticketslist;
   CManualClosingTicketsSubmitRes? _cManualClosingTicketsSubmitRes;
+  StreamSubscription? connection;
+  bool isoffline = false;
 
   @override
   Widget build(BuildContext context) {
@@ -171,11 +177,24 @@ class _ConcessionaireInchargeManualClosingTicketsState
                   child: textButton(
                     text: TextConstants.concessionaire_pickup_capture_submit,
                     textcolor: Colors.white,
-                    onPressed: () {
-                      if (remarks.text.isEmpty) {
-                        ShowToats.showToast("Please enter remarks");
-                      } else {
-                        submitservice();
+                    onPressed: () async {
+                      var result = await Connectivity().checkConnectivity();
+                      if (result == ConnectivityResult.wifi ||
+                          result == ConnectivityResult.mobile ||
+                          result == ConnectivityResult.ethernet ||
+                          result == ConnectivityResult.vpn ||
+                          result == ConnectivityResult.bluetooth) {
+                        if (remarks.text.isEmpty) {
+                          ShowToats.showToast("Please enter remarks");
+                        } else {
+                          submitservice();
+                        }
+                      }
+                      else if(result == ConnectivityResult.none){
+                        ShowToats.showToast(
+                                        TextConstants.internetcheck,bgcolor: Colors.white,gravity: ToastGravity.BOTTOM,textcolor: Colors.black
+                                        );
+
                       }
                     },
                   ),
@@ -190,6 +209,7 @@ class _ConcessionaireInchargeManualClosingTicketsState
 
   @override
   void initState() {
+    NetCheck();
     // TODO: implement initState
     super.initState();
     print(AppConstants.concessionaireInchargeManualClosingTicketlist?.cIRCLEID);

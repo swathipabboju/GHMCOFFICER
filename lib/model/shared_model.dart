@@ -78,6 +78,8 @@ class PreferenceConstants
       static const String menuId = "menuId";
         static const String ward = "ward";
           static const String roleId = "roleId";
+          static const String type = "type";
+
         
 
 }

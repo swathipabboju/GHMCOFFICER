@@ -1,14 +1,20 @@
+import 'dart:async';
+
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:ghmcofficerslogin/model/corporator/corporator_list_req.dart';
 import 'package:ghmcofficerslogin/model/corporator/corporator_list_response.dart';
 import 'package:ghmcofficerslogin/model/shared_model.dart';
 import 'package:ghmcofficerslogin/res/components/background_image.dart';
 import 'package:ghmcofficerslogin/res/components/grievance_row.dart';
+import 'package:ghmcofficerslogin/res/components/internetcheck.dart';
 import 'package:ghmcofficerslogin/res/components/logo_details.dart';
 import 'package:ghmcofficerslogin/res/components/navigation.dart';
 import 'package:ghmcofficerslogin/res/components/sharedpreference.dart';
+import 'package:ghmcofficerslogin/res/components/showtoasts.dart';
 import 'package:ghmcofficerslogin/res/constants/ApiConstants/api_constants.dart';
 import 'package:ghmcofficerslogin/res/constants/Images/image_constants.dart';
 import 'package:ghmcofficerslogin/res/constants/routes/app_routes.dart';
@@ -24,11 +30,14 @@ class CorporatorDashboard extends StatefulWidget {
 
 class _CorporatorDashboardState extends State<CorporatorDashboard> {
   CorporatorListResponse? corporatorListResponse;
+  StreamSubscription? connection;
+  bool isoffline = false;
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-          body:NestedScrollView(headerSliverBuilder:
+          body: NestedScrollView(
+            headerSliverBuilder:
                 (BuildContext context, bool innerBoxIsScrolled) {
               return [
                 SliverPersistentHeader(
@@ -37,60 +46,78 @@ class _CorporatorDashboardState extends State<CorporatorDashboard> {
                 ),
               ];
             },
-          body: Stack(
-            children: [
-              BgImage(imgPath: ImageConstants.bg),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Expanded(
-                      flex: 2,
-                      child: GridView.builder(
-                        itemCount: corporatorListResponse?.rOW?.length ?? 0,
-                        itemBuilder: (context, index) {
-                          final data = corporatorListResponse?.rOW?[index];
-                          return GestureDetector(
-                            onTap: () async {
-                             // EasyLoading.show();
-                              await SharedPreferencesClass().writeTheData(
-                                  PreferenceConstants.menuId,
-                                  data?.iMENUID);
-                                  
-                              Navigator.pushNamed(context, AppRoutes.corporatorviewdoc);
-                            },
-                            child: Column(
-                              children: [
-                                Image.network(
-                                  "${data?.uRL}",
-                                  height: 50,
-                                ),
-                                // SizedBox(
-                                //   height: 5.0,
-                                // ),
-                                Text(
-                                  "${data?.mENUNAME}",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 12.0,
+            body: Stack(
+              children: [
+                BgImage(imgPath: ImageConstants.bg),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: GridView.builder(
+                          itemCount: corporatorListResponse?.rOW?.length ?? 0,
+                          itemBuilder: (context, index) {
+                            final data = corporatorListResponse?.rOW?[index];
+                            return GestureDetector(
+                              onTap: () async {
+                                var result =
+                                    await Connectivity().checkConnectivity;
+                                // EasyLoading.show();
+                                await SharedPreferencesClass().writeTheData(
+                                    PreferenceConstants.menuId, data?.iMENUID);
+                                    if(result == ConnectivityResult.wifi ||
+                                      result == ConnectivityResult.mobile ||
+                                      result == ConnectivityResult.ethernet ||
+                                      result == ConnectivityResult.vpn ||
+                                      result == ConnectivityResult.bluetooth){
+                                      Navigator.pushNamed(
+                                    context, AppRoutes.corporatorviewdoc);
+
+
+                                    }
+                                    else if(result == ConnectivityResult.none){
+                                      ShowToats.showToast(
+                                        TextConstants.internetcheck,bgcolor: Colors.white,gravity: ToastGravity.BOTTOM,textcolor: Colors.black
+                                        );
+
+                                    }
+
+                                
+                              },
+                              child: Column(
+                                children: [
+                                  Image.network(
+                                    "${data?.uRL}",
+                                    height: 50,
                                   ),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          childAspectRatio: 2,
+                                  // SizedBox(
+                                  //   height: 5.0,
+                                  // ),
+                                  Text(
+                                    "${data?.mENUNAME}",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12.0,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            childAspectRatio: 2,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
           ),
           bottomSheet: Container(
             padding: EdgeInsets.all(6.0),
@@ -113,6 +140,7 @@ class _CorporatorDashboardState extends State<CorporatorDashboard> {
 
   @override
   void initState() {
+    NetCheck();
     super.initState();
     EasyLoading.show();
     corporatorListDetails();
@@ -151,17 +179,14 @@ class _CorporatorDashboardState extends State<CorporatorDashboard> {
       //converting response from String to json
       final data = CorporatorListResponse.fromJson(response.data);
       print(response.data);
-    
-        EasyLoading.dismiss();
-        setState(() {
+
+      EasyLoading.dismiss();
+      setState(() {
         if (data.rOW != null) {
-        
           corporatorListResponse = data;
         }
       });
-      
 
-      
       EasyLoading.dismiss();
     } on DioError catch (e) {
       if (e.response?.statusCode == 400 || e.response?.statusCode == 500) {
@@ -195,6 +220,7 @@ class _CorporatorDashboardState extends State<CorporatorDashboard> {
   } //
 
 }
+
 class MySliverAppBar extends SliverPersistentHeaderDelegate {
   final double expandedHeight;
 
@@ -215,7 +241,6 @@ class MySliverAppBar extends SliverPersistentHeaderDelegate {
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-              
                   IconButton(
                     onPressed: () {
                       Navigator.pushNamed(context, AppRoutes.myloginpage);

@@ -1,10 +1,17 @@
+import 'dart:async';
+
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_launcher_icons/xml_templates.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:ghmcofficerslogin/model/concessioner/concessionaire_pickup_capturelist_res.dart';
 import 'package:ghmcofficerslogin/model/shared_model.dart';
 import 'package:ghmcofficerslogin/res/components/background_image.dart';
+import 'package:ghmcofficerslogin/res/components/internetcheck.dart';
 import 'package:ghmcofficerslogin/res/components/searchbar.dart';
+import 'package:ghmcofficerslogin/res/components/showtoast.dart';
 import 'package:ghmcofficerslogin/res/components/textwidget.dart';
 import 'package:ghmcofficerslogin/res/constants/ApiConstants/api_constants.dart';
 import 'package:ghmcofficerslogin/res/constants/Images/image_constants.dart';
@@ -31,12 +38,13 @@ class _ConcessionerPickupCaptureListState
   List<TicketList>? ticketlist;
   List<TicketList> ticketlistResponse = [];
   List<TicketList> ticketlistSearchListResponse = [];
+   StreamSubscription? connection;
+  bool isoffline = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.white,
-         
           leading: IconButton(
               icon: Icon(Icons.arrow_back, color: Colors.black),
               onPressed: (() {
@@ -47,8 +55,10 @@ class _ConcessionerPickupCaptureListState
           title: Center(
             child: Text(
               "Concenssionaire Incharge Pickup Capture list",
-              style:
-                   TextStyle(color: Colors.black, fontWeight: FontWeight.bold,fontSize: 14),
+              style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14),
             ),
           ),
         ),
@@ -78,13 +88,21 @@ class _ConcessionerPickupCaptureListState
 
                         return GestureDetector(
                           onTap: () async {
+                            var result =
+                                await Connectivity().checkConnectivity();
                             AppConstants.ticktetitemslist =
                                 ticketlistResponse[index];
-                            print("item list ${ AppConstants.ticktetitemslist?.tICKETID}");
-
-                          
-                            Navigator.pushNamed(
-                                context, AppRoutes.concessionairepickupcapture);
+                            print(
+                                "item list ${AppConstants.ticktetitemslist?.tICKETID}");
+                            if (result == ConnectivityResult.wifi || result == ConnectivityResult.mobile || result == ConnectivityResult.bluetooth || result == ConnectivityResult.ethernet || result == ConnectivityResult.vpn) {
+                              Navigator.pushNamed(context,
+                                  AppRoutes.concessionairepickupcapture);
+                            } else if(result == ConnectivityResult.none) {
+                              ShowToats.showToast(
+                                
+                                
+                                  TextConstants.internetcheck,bgcolor: Colors.black,textcolor: Colors.white,gravity: ToastGravity.CENTER);
+                            }
                           },
                           child: Padding(
                             padding:
@@ -136,13 +154,13 @@ class _ConcessionerPickupCaptureListState
                                         "${details.iMAGE1PATH}",
                                         height: 100.0,
                                         width: 100.0,
-                                       errorBuilder:
+                                        errorBuilder:
                                             (context, error, stackTrace) {
-                                          return  Image.asset(
-                                  ImageConstants.no_uploaded,
-                                  width: 200.0,
-                                  height: 100.0,
-                                  );  /* Image.asset(
+                                          return Image.asset(
+                                            ImageConstants.no_uploaded,
+                                            width: 200.0,
+                                            height: 100.0,
+                                          ); /* Image.asset(
                                   ImageConstants.ghmc_logo_new,
                                   width: 200.0,
                                   height: 100.0,
@@ -159,30 +177,29 @@ class _ConcessionerPickupCaptureListState
                       }),
                 )),
                 Align(
-                alignment: Alignment.bottomCenter,
-                child: Container(
-                  color: Colors.transparent,
-                  padding: EdgeInsets.all(6.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "Rights Reserved @ GHMC",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      Text(
-                        "Powered By CGG",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ],
+                  alignment: Alignment.bottomCenter,
+                  child: Container(
+                    color: Colors.transparent,
+                    padding: EdgeInsets.all(6.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Rights Reserved @ GHMC",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        Text(
+                          "Powered By CGG",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              )
+                )
               ],
             ),
           ],
-        )
-        );
+        ));
   }
 
   Line() {
@@ -261,9 +278,15 @@ class _ConcessionerPickupCaptureListState
 
   @override
   void initState() {
+    NetCheck();
     // TODO: implement initState
     super.initState();
     getdetails();
+  }
+  @override
+  void dispose() {
+    connection!.cancel();
+    super.dispose();
   }
 
   getdetails() async {

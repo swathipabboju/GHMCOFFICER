@@ -1,4 +1,5 @@
 class TextConstants {
+  static const String internetcheck = "Please check your internet connection";
   //ghmc dashboard
   static const String raise_grievance = "Raise Grievances";
   static const String check_status = "Check Status";
@@ -39,7 +40,7 @@ class TextConstants {
   static const String view_comments = "VIEW COMMENTS";
   static const String take_action = "TAKE ACTION";
   static const String view_directions = "VIEW DIRECTIONS";
-static const String selected_location = "Selected location is outside GHMC";
+  static const String selected_location = "Selected location is outside GHMC";
   //mpin page
   static const String mpin_login = "MPIN Login";
   static const String invalid_mpin = "Invalid MPIN";
@@ -98,7 +99,7 @@ static const String selected_location = "Selected location is outside GHMC";
   static const String checkstatus_repairstoroad_potholes =
       "Repairs to Road (Pot holes)";
 
- // take action
+  // take action
   static const String take_action_Proofid = "Enter Proof Id";
   static const String take_action_mobileno = "Enter Mobile Number";
   static const String take_action_emailid = "Enter email id";
@@ -268,14 +269,15 @@ static const String selected_location = "Selected location is outside GHMC";
   static const String reject_reassign_doyouwantto = "Do you want to";
   static const String reject_reassign_image = "Image";
   //raise request raise request
-static const String raise_request_zone = "Zone";
-static const String raise_request_ward = "Ward";
-static const String raise_request_circle = "Circle";
-static const String raise_request_currentdate = "Current Date";
-static const String raise_request_forward_to_another_ward = "Forward To Another Ward";
-static const String raise_request_image_waste = "Image of waste";
-static const String raise_request_submit = "SUBMIT";
-static const String raise_request_landmark = "Landmark";
+  static const String raise_request_zone = "Zone";
+  static const String raise_request_ward = "Ward";
+  static const String raise_request_circle = "Circle";
+  static const String raise_request_currentdate = "Current Date";
+  static const String raise_request_forward_to_another_ward =
+      "Forward To Another Ward";
+  static const String raise_request_image_waste = "Image of waste";
+  static const String raise_request_submit = "SUBMIT";
+  static const String raise_request_landmark = "Landmark";
 
 // c incharge ticket details
   static const String c_inchrge_ticket_details_currentdate = "Current Date";
@@ -296,9 +298,9 @@ static const String raise_request_landmark = "Landmark";
   static const String c_inchrge_ticket_details_accept = "Accept";
   static const String c_inchrge_ticket_details_reject = "Reject";
   //corporator
-   static const String exportpdf = "EXPORT PDF";
+  static const String exportpdf = "EXPORT PDF";
 
-   // amoh ticket closed list
+  // amoh ticket closed list
   static const String amoh_c_closed_ticket_details_ticketraiseddate =
       "Ticket Raised Date";
   static const String amoh_c_closed_ticket_details_ticketcloseddate =
@@ -314,27 +316,27 @@ static const String raise_request_landmark = "Landmark";
       "Type Of Waste";
   static const String amoh_c_closed_ticket_details_No_of_trips = "No of Trips";
 
- // amoh c closed ticket closed list vehicle
+  // amoh c closed ticket closed list vehicle
   static const String amoh_c_closed_ticket_vehicleno = "Vehicle No";
   static const String amoh_c_closed_ticket_vehicleid = "Vehicle Id";
   static const String amoh_c_closed_ticket_drivername = "Driver Name";
   static const String amoh_c_closed_ticket_driverno = "Driver Mno";
   static const String amoh_c_closed_ticket_beforetrip = "Before Trip Image";
-  static const String amoh_c_closed_ticket_aftertrip = "After Trip Image"; 
-  static const String concenssionaire_incharge_manual_closing_tickets_remarks = "remarks";
+  static const String amoh_c_closed_ticket_aftertrip = "After Trip Image";
+  static const String concenssionaire_incharge_manual_closing_tickets_remarks =
+      "remarks";
   static const String request_estimation_ok = "OK";
 
-  //reject / reassign 
+  //reject / reassign
   static const String image = "Image";
   static const String Doyouwantto = "Do you want to";
 
   // concenssionaire pickup capture
 
-  
-      static const String concessionaire_pickup_capture_after_pickup =
+  static const String concessionaire_pickup_capture_after_pickup =
       "After Pickup";
 
-static const String concessionaire_pickup_capture_submit_no = "No";
+  static const String concessionaire_pickup_capture_submit_no = "No";
   static const String concessionaire_pickup_capture_submit_yes = "Yes";
   static const String concessionaire_pickup_capture_is_this_your_last_trip =
       "is this your last trip?";

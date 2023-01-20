@@ -1,5 +1,11 @@
+import 'dart:async';
+
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:ghmcofficerslogin/res/components/background_image.dart';
+import 'package:ghmcofficerslogin/res/components/internetcheck.dart';
+import 'package:ghmcofficerslogin/res/components/showtoasts.dart';
 import 'package:ghmcofficerslogin/res/constants/Images/image_constants.dart';
 import 'package:ghmcofficerslogin/res/constants/app_constants.dart';
 import 'package:ghmcofficerslogin/res/constants/text_constants/text_constants.dart';
@@ -15,12 +21,13 @@ class CInchargeTicketDetails extends StatefulWidget {
 
 class _CInchargeTicketDetailsState extends State<CInchargeTicketDetails> {
   String? reason;
+  StreamSubscription? connection;
+  bool isoffline = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
-       
         leading: IconButton(
             icon: Icon(Icons.arrow_back, color: Colors.black),
             onPressed: (() {
@@ -29,7 +36,8 @@ class _CInchargeTicketDetailsState extends State<CInchargeTicketDetails> {
         title: Center(
           child: Text(
             "Concessionaire Ticket Details",
-            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold,fontSize: 14),
+            style: TextStyle(
+                color: Colors.black, fontWeight: FontWeight.bold, fontSize: 14),
           ),
         ),
       ),
@@ -44,8 +52,10 @@ class _CInchargeTicketDetailsState extends State<CInchargeTicketDetails> {
                     TextConstants.c_inchrge_ticket_details_currentdate,
                     DateFormat("dd/MM/yyyy hh:mm a").format(DateTime.now()),
                     Colors.white),
-                RowComponent(TextConstants.c_inchrge_ticket_details_zone,
-                    AppConstants.c_incharge_ticket_list?.zONENAME, Colors.white),
+                RowComponent(
+                    TextConstants.c_inchrge_ticket_details_zone,
+                    AppConstants.c_incharge_ticket_list?.zONENAME,
+                    Colors.white),
                 RowComponent(
                     TextConstants.c_inchrge_ticket_details_circle,
                     AppConstants.c_incharge_ticket_list?.cIRCLENAME ?? "",
@@ -64,14 +74,15 @@ class _CInchargeTicketDetailsState extends State<CInchargeTicketDetails> {
                     Colors.white),
                 RowComponent(
                     TextConstants.c_inchrge_ticket_details_amoh_forward_date,
-                    AppConstants.c_incharge_ticket_list?.aMOHFORWARDEDDATE ?? "",
+                    AppConstants.c_incharge_ticket_list?.aMOHFORWARDEDDATE ??
+                        "",
                     Colors.white),
                 RowComponent(
                     TextConstants.c_inchrge_ticket_details_type_of_waste,
                     AppConstants.c_incharge_ticket_list?.tYPEOFWASTE ?? "",
                     Colors.white),
-                RowComponent(TextConstants.c_inchrge_ticket_details_image,
-                    "", Colors.white),
+                RowComponent(TextConstants.c_inchrge_ticket_details_image, "",
+                    Colors.white),
                 SizedBox(height: 4),
                 Padding(
                   padding: const EdgeInsets.only(top: 10.0),
@@ -97,9 +108,24 @@ class _CInchargeTicketDetailsState extends State<CInchargeTicketDetails> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        Expanded(flex: 2, child: Text(TextConstants.c_inchrge_ticket_details_vehicletype,style: TextStyle(fontWeight: FontWeight.bold),)),
-                        Expanded(flex: 2, child: Text(TextConstants.c_inchrge_ticket_details_no_of_trips,style: TextStyle(fontWeight: FontWeight.bold))),
-                        Expanded(flex: 1, child: Text(TextConstants.c_inchrge_ticket_details_amount,style: TextStyle(fontWeight: FontWeight.bold))),
+                        Expanded(
+                            flex: 2,
+                            child: Text(
+                              TextConstants
+                                  .c_inchrge_ticket_details_vehicletype,
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            )),
+                        Expanded(
+                            flex: 2,
+                            child: Text(
+                                TextConstants
+                                    .c_inchrge_ticket_details_no_of_trips,
+                                style: TextStyle(fontWeight: FontWeight.bold))),
+                        Expanded(
+                            flex: 1,
+                            child: Text(
+                                TextConstants.c_inchrge_ticket_details_amount,
+                                style: TextStyle(fontWeight: FontWeight.bold))),
                       ],
                     ),
                   ),
@@ -142,7 +168,8 @@ class _CInchargeTicketDetailsState extends State<CInchargeTicketDetails> {
                             child: Padding(
                               padding: const EdgeInsets.only(left: 20),
                               child: Text(
-                                TextConstants.c_inchrge_ticket_details_do_you_want,
+                                TextConstants
+                                    .c_inchrge_ticket_details_do_you_want,
                                 style: TextStyle(
                                   fontSize: 13,
                                   color: Colors.white,
@@ -154,12 +181,14 @@ class _CInchargeTicketDetailsState extends State<CInchargeTicketDetails> {
                           Expanded(
                             flex: 2,
                             child: RadioListTile(
-                              title: Text(TextConstants.c_inchrge_ticket_details_accept,
+                              title: Text(
+                                  TextConstants.c_inchrge_ticket_details_accept,
                                   style: TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.bold,
                                       fontSize: 10)),
-                              value: TextConstants.c_inchrge_ticket_details_accept,
+                              value:
+                                  TextConstants.c_inchrge_ticket_details_accept,
                               groupValue: reason,
                               onChanged: (value) {
                                 setState(() {
@@ -171,12 +200,14 @@ class _CInchargeTicketDetailsState extends State<CInchargeTicketDetails> {
                           Expanded(
                             flex: 2,
                             child: RadioListTile(
-                              title: Text(TextConstants.c_inchrge_ticket_details_reject,
+                              title: Text(
+                                  TextConstants.c_inchrge_ticket_details_reject,
                                   style: TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.bold,
                                       fontSize: 10)),
-                              value: TextConstants.c_inchrge_ticket_details_reject,
+                              value:
+                                  TextConstants.c_inchrge_ticket_details_reject,
                               groupValue: reason,
                               onChanged: (value) {
                                 setState(() {
@@ -195,11 +226,27 @@ class _CInchargeTicketDetailsState extends State<CInchargeTicketDetails> {
                             color: Colors.black.withOpacity(0.3),
                           ),
                           child: TextButton(
-                            onPressed: () {
-                              double lattitude = double.parse("${AppConstants.c_incharge_ticket_list?.lATITUDE}");
-                                double longitude =
-                                   double.parse("${AppConstants.c_incharge_ticket_list?.lONGITUDE}");
-                                navigateTo(lattitude,longitude);
+                            onPressed: () async {
+                              var result =
+                                  await Connectivity().checkConnectivity();
+
+                              double lattitude = double.parse(
+                                  "${AppConstants.c_incharge_ticket_list?.lATITUDE}");
+                              double longitude = double.parse(
+                                  "${AppConstants.c_incharge_ticket_list?.lONGITUDE}");
+                              if (result == ConnectivityResult.wifi ||
+                                  result == ConnectivityResult.mobile ||
+                                  result == ConnectivityResult.ethernet ||
+                                  result == ConnectivityResult.vpn ||
+                                  result == ConnectivityResult.bluetooth) {
+                                navigateTo(lattitude, longitude);
+                              } else if (result == ConnectivityResult.none) {
+                                ShowToats.showToast(TextConstants.internetcheck,
+                                    bgcolor: Colors.white,
+                                    gravity: ToastGravity.BOTTOM,
+                                    textcolor: Colors.black);
+                              }
+
                               // showAlert(raiseRequestSubmitResponse?.sTATUSMESSAGE);
                             },
                             child: Text(
@@ -217,7 +264,20 @@ class _CInchargeTicketDetailsState extends State<CInchargeTicketDetails> {
                             color: Colors.black.withOpacity(0.3),
                           ),
                           child: TextButton(
-                            onPressed: () {
+                            onPressed: () async {
+                              var result =
+                                  await Connectivity().checkConnectivity();
+                              if (result == ConnectivityResult.wifi ||
+                                  result == ConnectivityResult.mobile ||
+                                  result == ConnectivityResult.ethernet ||
+                                  result == ConnectivityResult.vpn ||
+                                  result == ConnectivityResult.bluetooth) {
+                              } else if (result == ConnectivityResult.none) {
+                                ShowToats.showToast(TextConstants.internetcheck,
+                                    bgcolor: Colors.white,
+                                    gravity: ToastGravity.BOTTOM,
+                                    textcolor: Colors.black);
+                              }
                               // showAlert(raiseRequestSubmitResponse?.sTATUSMESSAGE);
                             },
                             child: Text(
@@ -238,15 +298,22 @@ class _CInchargeTicketDetailsState extends State<CInchargeTicketDetails> {
     );
   }
 
+  @override
+  void initState() {
+    NetCheck();
+    // TODO: implement initState
+    super.initState();
+  }
+
   static void navigateTo(double lat, double lng) async {
-   var uri = Uri.parse("google.navigation:q=$lat,$lng&mode=d");
-   if (await canLaunch(uri.toString())) {
+    var uri = Uri.parse("google.navigation:q=$lat,$lng&mode=d");
+    if (await canLaunch(uri.toString())) {
       await launch(uri.toString());
-   } else {
+    } else {
       throw 'Could not launch ${uri.toString()}';
-   }
-}
- /*  void _launchMapsUrl(double lat, double lon) async {
+    }
+  }
+  /*  void _launchMapsUrl(double lat, double lon) async {
     final url = 'https://www.google.com/maps/search/?api=1&query=$lat,$lon';
     if (await canLaunch(url)) {
       await launch(url);

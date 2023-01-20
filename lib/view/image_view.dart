@@ -1,43 +1,66 @@
-import 'package:flutter/cupertino.dart';
-import 'package:ghmcofficerslogin/model/full_details_response.dart';
-import 'package:ghmcofficerslogin/res/constants/Images/image_constants.dart';
+
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/material.dart';
+import 'package:ghmcofficerslogin/view/pdf_view.dart';
+import 'package:share/share.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 class ImageViewPage extends StatefulWidget {
-  const ImageViewPage({super.key, this.img});
-  final img;
+  final String filePath;
+  const ImageViewPage( {super.key, required this.filePath,});
+  
 
   @override
   State<ImageViewPage> createState() => _ImageViewPageState();
 }
 
 class _ImageViewPageState extends State<ImageViewPage> {
-GrievanceFullDetails? grievanceFullDetails;
 
   @override
   Widget build(BuildContext context) {
-   
-    return Container(
-      child: widget.img.contains('.pdf') ? 
-      SfPdfViewer.network(
-        'https://cdn.syncfusion.com/content/PDFViewer/flutter-succinctly.pdf',
-        /* errorBuilder: (BuildContext context, Object exception,
-            StackTrace? stackTrace) {
-         return Image.asset(ImageConstants.no_uploaded);
-            } */
-     ): 
-     Image.network(
-        widget.img,
-        errorBuilder: (BuildContext context, Object exception,
-            StackTrace? stackTrace) {
-         return Image.asset(ImageConstants.no_uploaded);
-       },
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.download, color: Colors.black),
+            onPressed: ()  {
+              //EasyLoading.show();
+              showDialog(builder: (BuildContext context) => DownloadingDialog(filePath: '${widget.filePath}',), context: context);
+            },
+          ),
+        ],
+        leading: IconButton(
+            icon: Icon(Icons.arrow_back, color: Colors.black),
+            onPressed: (() {
+              Navigator.of(context).pop();
+            })
+            //() => Navigator.of(context).pop(),
+            ),
+        title: Center(
+          child: Text(
+            "Pdf",
+            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+          ),
+        ),
       ),
+      body: Center(
+        child:SfPdfViewer.network(
+         widget.filePath
+         // 'https://cdn.syncfusion.com/content/PDFViewer/flutter-succinctly.pdf',
+           ),
+      ),
+      floatingActionButton:FloatingActionButton(
+      onPressed: shareFile,
+      child: Icon(Icons.share),
+     ),
     );
     
   }
+  void shareFile() async
+  {
+    var file = await FilePicker.platform.pickFiles();
+    Share.shareFiles([file!.paths[0]!]);
+  }
+
 }
-/* errorBuilder: (BuildContext context, Object exception,
-            StackTrace? stackTrace) {
-         return Image.asset(ImageConstants.no_uploaded);
-       }, */

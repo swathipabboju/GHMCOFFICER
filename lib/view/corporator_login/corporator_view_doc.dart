@@ -10,8 +10,13 @@ import 'package:ghmcofficerslogin/res/components/sharedpreference.dart';
 import 'package:ghmcofficerslogin/res/components/textwidget.dart';
 import 'package:ghmcofficerslogin/res/constants/ApiConstants/api_constants.dart';
 import 'package:ghmcofficerslogin/res/constants/Images/image_constants.dart';
+import 'package:ghmcofficerslogin/res/constants/routes/app_routes.dart';
 import 'package:ghmcofficerslogin/res/constants/text_constants/text_constants.dart';
+
+import 'package:ghmcofficerslogin/view/image_view.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
+import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 import '../../res/components/datepicker.dart';
 
@@ -23,9 +28,12 @@ class CorporatorViewDoc extends StatefulWidget {
 }
 
 class _CorporatorViewDocState extends State<CorporatorViewDoc> {
-    CorporatorReportResponse? _corporatorReportResponse;
+  CorporatorReportResponse? _corporatorReportResponse;
 
-  TextEditingController _dateCotroller = TextEditingController();
+  TextEditingController _dateController = TextEditingController();
+  bool date = false;
+  //var _selectedDate;
+  final GlobalKey<SfPdfViewerState> _pdfViewerKey = GlobalKey();
   FocusNode myFocusNode = new FocusNode();
   @override
   Widget build(BuildContext context) {
@@ -70,13 +78,37 @@ class _CorporatorViewDocState extends State<CorporatorViewDoc> {
                         )),
                     Expanded(
                       flex: 4,
-                      child: datePickerComponent(
-                        nameController: _dateCotroller,
-                        errorMessage: "select date",
-                        obsecuretext: false,
-                        
-                        suffixIcon: Icon(Icons.calendar_month),
-                        action: TextInputAction.next,
+                      child: TextField(
+                        readOnly: true,
+                        decoration: InputDecoration(
+                            suffixIcon: IconButton(
+                          onPressed: () async {
+                            final selectedDate = await showDatePicker(
+                              context: context,
+                              initialDate: DateTime.now(),
+                              firstDate: DateTime(2000),
+                              lastDate: DateTime(2101),
+                            );
+                            if (selectedDate != null) {
+                              initializeDateFormatting('es');
+                              String formattedDate =
+                                  DateFormat.yMd('es').format(selectedDate);
+                              print("formatted date ${formattedDate}");
+                              //DateFormat('dd/MM/yyyy').format(selectedDate);
+                              setState(() {
+                                _dateController.text = formattedDate;
+                              });
+                            }
+                          },
+                          icon: Icon(
+                            Icons.calendar_month,
+                            color: Colors.blueAccent,
+                          ),
+                        )),
+                        controller: _dateController,
+                        style: TextStyle(
+                          color: Colors.black,
+                        ),
                       ),
                     )
                   ],
@@ -91,6 +123,18 @@ class _CorporatorViewDocState extends State<CorporatorViewDoc> {
                       textcolor: Colors.white,
                       onPressed: () {
                         getCorporatorReportDetails();
+                        print(
+                            "filepath: ${_corporatorReportResponse?.filePath}");
+                        //(_corporatorReportResponse!.filePath!.contains('.pdf'))
+                        //_pdfViewerKey.currentState?.openBookmarkView();
+
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => ImageViewPage(
+                                      filePath:
+                                          "${_corporatorReportResponse?.filePath}",
+                                    )));
                       }),
                 ),
               ),
@@ -101,11 +145,20 @@ class _CorporatorViewDocState extends State<CorporatorViewDoc> {
     );
   }
 
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getCorporatorReportDetails();
+  }
+
   void getCorporatorReportDetails() async {
     var menuId =
         await SharedPreferencesClass().readTheData(PreferenceConstants.menuId);
     var ward =
         await SharedPreferencesClass().readTheData(PreferenceConstants.ward);
+    var type =
+        await SharedPreferencesClass().readTheData(PreferenceConstants.type);
 
     //creating request url with base url and endpoint
     // https: //19cghmc.cgg.gov.in/myghmcwebapi/Grievance/CorporatorList
@@ -115,10 +168,11 @@ class _CorporatorViewDocState extends State<CorporatorViewDoc> {
     CorporatorReportRequest corporatorReportRequest =
         new CorporatorReportRequest();
 
-    corporatorReportRequest.fROMDATE = _dateCotroller.text;
-    corporatorReportRequest.tODATE = _dateCotroller.text;
+    corporatorReportRequest.fROMDATE = _dateController.text;
+    corporatorReportRequest.tODATE = _dateController.text;
     corporatorReportRequest.mENUID = menuId;
     corporatorReportRequest.wARD = ward;
+    corporatorReportRequest.tYPE = type;
     var requestPayload = corporatorReportRequest.toJson();
 
     print(requestPayload);
@@ -138,14 +192,14 @@ class _CorporatorViewDocState extends State<CorporatorViewDoc> {
       final data = CorporatorReportResponse.fromJson(response.data);
       print(response.data);
 
-    setState(() {
+      setState(() {
         if (data.status == "sucess") {
-         
+          _corporatorReportResponse = data;
+          print("file ====== ${_corporatorReportResponse?.filePath}");
         } else {
-            showAlert("${data.status}");
+          showAlert("${data.status}");
         }
-      }
-      );
+      });
       EasyLoading.dismiss();
     } on DioError catch (e) {
       if (e.response?.statusCode == 400 || e.response?.statusCode == 500) {
@@ -158,7 +212,7 @@ class _CorporatorViewDocState extends State<CorporatorViewDoc> {
     }
 // step 5: print the response
   }
-  
+
   showAlert(String message, {String text = ""}) {
     showDialog(
         context: context,
@@ -178,7 +232,8 @@ class _CorporatorViewDocState extends State<CorporatorViewDoc> {
                 onPressed: () {
                   print("clicked");
                   // print("button Action");
-                  Navigator.pop(context);
+                  Navigator.popUntil(context,
+                      ModalRoute.withName(AppRoutes.corporatordashboard));
                 },
                 child: Text(TextConstants.ok),
                 //style: ButtonStyle(backgroundColor,
