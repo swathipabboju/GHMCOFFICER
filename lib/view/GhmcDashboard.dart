@@ -1,6 +1,10 @@
+import 'dart:async';
+
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 import 'package:ghmcofficerslogin/model/dashboard_response.dart';
 import 'package:ghmcofficerslogin/model/mobile_menu_list_response.dart';
@@ -10,6 +14,7 @@ import 'package:ghmcofficerslogin/res/components/grievance_row.dart';
 import 'package:ghmcofficerslogin/res/components/logo_details.dart';
 import 'package:ghmcofficerslogin/res/components/navigation.dart';
 import 'package:ghmcofficerslogin/res/components/sharedpreference.dart';
+import 'package:ghmcofficerslogin/res/components/showtoast.dart';
 import 'package:ghmcofficerslogin/res/constants/ApiConstants/api_constants.dart';
 import 'package:ghmcofficerslogin/res/constants/Images/image_constants.dart';
 import 'package:ghmcofficerslogin/res/constants/app_constants.dart';
@@ -25,6 +30,8 @@ class GhmcDashboard extends StatefulWidget {
 }
 
 class _GhmcDashboardState extends State<GhmcDashboard> {
+  StreamSubscription? connection;
+  bool isoffline = false;
   late DashboardResponse grievanceData;
   MobileMenuListResponse? mobileMenuListResponse;
   String tota = "";
@@ -46,22 +53,11 @@ class _GhmcDashboardState extends State<GhmcDashboard> {
         headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
           return <Widget>[
             SliverAppBar(
-              /* title: const Text("GHMC Officer App",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16.0,
-                        )), */
-              //forceElevated: true,
               backgroundColor: Colors.transparent,
               expandedHeight: MediaQuery.of(context).size.height * 0.2,
               floating: false,
               pinned: true,
               flexibleSpace: FlexibleSpaceBar(
-                /* title: Center(
-                    child: Container(
-                      child: LogoAndDetails(),
-                    ),
-                  ), */
                 collapseMode: CollapseMode.pin,
                 background: SizedBox(
                   child: Stack(
@@ -94,14 +90,30 @@ class _GhmcDashboardState extends State<GhmcDashboard> {
                   child: ListView(
                     children: [
                       GestureDetector(
-                        onTap: () {
-                          SharedPreferencesClass().writeTheData(
-                              PreferenceConstants.totalid, totalid);
-                          EasyLoading.show();
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => MyTotalGrievances()));
+                        onTap: () async {
+                          if (totalnumber == "0") {
+                            showAlert();
+                          } else {
+                            var result =
+                                await Connectivity().checkConnectivity();
+                            if (result == ConnectivityResult.mobile ||
+                                result == ConnectivityResult.wifi) {
+                              SharedPreferencesClass().writeTheData(
+                                  PreferenceConstants.totalid, totalid);
+                              EasyLoading.show();
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          MyTotalGrievances()));
+                            } else if (result == ConnectivityResult.none) {
+                              ShowToats.showToast(
+                                  "Check your internet connection",
+                                  gravity: ToastGravity.BOTTOM,
+                                  bgcolor: Colors.white,
+                                  textcolor: Colors.black);
+                            }
+                          }
                         },
                         child: Card(
                           shape: RoundedRectangleBorder(
@@ -123,17 +135,28 @@ class _GhmcDashboardState extends State<GhmcDashboard> {
                         ),
                       ),
                       GestureDetector(
-                        onTap: () {
+                        onTap: () async {
                           if (slumcount == "0") {
                             showAlert();
                           } else {
-                            SharedPreferencesClass().writeTheData(
-                                PreferenceConstants.totalid, slumid);
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => MyTotalGrievances(),
-                                ));
+                            var result =
+                                await Connectivity().checkConnectivity();
+                            if (result == ConnectivityResult.mobile ||
+                                result == ConnectivityResult.wifi) {
+                              SharedPreferencesClass().writeTheData(
+                                  PreferenceConstants.totalid, slumid);
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => MyTotalGrievances(),
+                                  ));
+                            } else if (result == ConnectivityResult.none) {
+                              ShowToats.showToast(
+                                  "Check your internet connection",
+                                  gravity: ToastGravity.BOTTOM,
+                                  bgcolor: Colors.white,
+                                  textcolor: Colors.black);
+                            }
                           }
                         },
                         child: Card(
@@ -156,15 +179,30 @@ class _GhmcDashboardState extends State<GhmcDashboard> {
                         ),
                       ),
                       GestureDetector(
-                        onTap: () {
-                          EasyLoading.show();
-                          SharedPreferencesClass()
-                              .writeTheData(PreferenceConstants.totalid, allid);
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => MyTotalGrievances(),
-                              ));
+                        onTap: () async {
+                          if (allcount == "0") {
+                            showAlert();
+                          } else {
+                            var result =
+                                await Connectivity().checkConnectivity();
+                            if (result == ConnectivityResult.mobile ||
+                                result == ConnectivityResult.wifi) {
+                              EasyLoading.show();
+                              SharedPreferencesClass().writeTheData(
+                                  PreferenceConstants.totalid, allid);
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => MyTotalGrievances(),
+                                  ));
+                            } else if (result == ConnectivityResult.none) {
+                              ShowToats.showToast(
+                                  "Please Check your internet connection",
+                                  gravity: ToastGravity.BOTTOM,
+                                  bgcolor: Colors.white,
+                                  textcolor: Colors.black);
+                            }
+                          }
                         },
                         child: Card(
                           shape: RoundedRectangleBorder(
@@ -193,10 +231,20 @@ class _GhmcDashboardState extends State<GhmcDashboard> {
                             img: ImageConstants.dash_grievances_icon,
                             text: TextConstants.raise_grievance,
                             textcolor: Colors.white,
-                            onPressed: () {
-                              EasyLoading.show();
-                              Navigator.pushNamed(
-                                  context, AppRoutes.raisegrievance);
+                            onPressed: () async {
+                              var result = await Connectivity().checkConnectivity();
+                              if (result == ConnectivityResult.mobile ||
+                                  result == ConnectivityResult.wifi) {
+                                EasyLoading.show();
+                                Navigator.pushNamed(
+                                    context, AppRoutes.raisegrievance);
+                              } else if (result == ConnectivityResult.none) {
+                                ShowToats.showToast(
+                                    "Please check your internet connection",
+                                    gravity: ToastGravity.BOTTOM,
+                                    bgcolor: Colors.white,
+                                    textcolor: Colors.black);
+                              }
                             },
                           ),
                           Grievances(
@@ -204,21 +252,44 @@ class _GhmcDashboardState extends State<GhmcDashboard> {
                               img: ImageConstants.dash_checkstatus,
                               text: TextConstants.check_status,
                               textcolor: Colors.white,
-                              onPressed: () {
-                                EasyLoading.show();
-                                
-                                Navigator.pushNamed(
-                                    context, AppRoutes.checkstatusnew);
+                              onPressed: () async {
+                                var result =
+                                    await Connectivity().checkConnectivity();
+                                if (result == ConnectivityResult.mobile ||
+                                    result == ConnectivityResult.wifi) {
+                                  EasyLoading.show();
+                                  Navigator.pushNamed(
+                                      context, AppRoutes.checkstatusnew);
+                                } else if (result == ConnectivityResult.none) {
+                                  ShowToats.showToast(
+                                      "Check your internet connection",
+                                      gravity: ToastGravity.BOTTOM,
+                                      bgcolor: Colors.white,
+                                      textcolor: Colors.black);
+                                }
                               }),
                           Grievances(
                               img: ImageConstants.construction_icon,
                               height: 50,
                               text: TextConstants.CNDW,
                               textcolor: Colors.white,
-                              onPressed: () {
+                              onPressed: () async{
+                                var result = await Connectivity().checkConnectivity();
+                                if(result == ConnectivityResult.mobile || result == ConnectivityResult.wifi)
+                                {
                                 EasyLoading.show();
                                 Navigator.pushNamed(context,
                                     AppRoutes.consructiondemolitionwaste);
+                                }
+                                else if(result == ConnectivityResult.none)
+                                {
+                                  ShowToats.showToast(
+                                    "Check your internet connection", 
+                                  gravity:  ToastGravity.BOTTOM,
+                                  bgcolor: Colors.white,
+                                  textcolor: Colors.black
+                                  );
+                                }
                               }),
                         ],
                       ),
@@ -237,12 +308,29 @@ class _GhmcDashboardState extends State<GhmcDashboard> {
                             final data = mobileMenuListResponse?.rOW?[index];
                             return GestureDetector(
                               onTap: () async {
+                                var result = await Connectivity().checkConnectivity();
+                                if(result == ConnectivityResult.mobile ||
+                                 result == ConnectivityResult.wifi ||
+                                  result == ConnectivityResult.bluetooth || 
+                                  result == ConnectivityResult.ethernet ||
+                                   result == ConnectivityResult.vpn)
+                                {
                                 EasyLoading.show();
                                 await SharedPreferencesClass().writeTheData(
                                     PreferenceConstants.grievance_type,
                                     data?.iMENUID);
                                 Navigator.pushNamed(
                                     context, AppRoutes.newcomplaint);
+                                }
+                                else if(result == ConnectivityResult.none)
+                                {
+                                  ShowToats.showToast(
+                                    "Check your internet connection", 
+                                  gravity:  ToastGravity.CENTER,
+                                  bgcolor: Colors.white,
+                                  textcolor: Colors.black
+                                  );
+                                }
                               },
                               child: Center(
                                 child: Column(
@@ -283,9 +371,46 @@ class _GhmcDashboardState extends State<GhmcDashboard> {
 
   @override
   void initState() {
+    connection = Connectivity()
+        .onConnectivityChanged
+        .listen((ConnectivityResult result) {
+      // whenevery connection status is changed.
+      if (result == ConnectivityResult.none) {
+        //there is no any connection
+        setState(() {
+          isoffline = true;
+        });
+      } else if (result == ConnectivityResult.mobile) {
+        //connection is mobile data network
+        setState(() {
+          isoffline = false;
+        });
+      } else if (result == ConnectivityResult.wifi) {
+        //connection is from wifi
+        setState(() {
+          isoffline = false;
+        });
+      } else if (result == ConnectivityResult.ethernet) {
+        //connection is from wired connection
+        setState(() {
+          isoffline = false;
+        });
+      } else if (result == ConnectivityResult.bluetooth) {
+        //connection is from bluetooth threatening
+        setState(() {
+          isoffline = false;
+        });
+      }
+    });
     super.initState();
     GrievanceDetails();
     GrievanceGridDetails();
+  }
+
+  @override
+  void dispose() {
+    connection!.cancel();
+    super.dispose();
   }
 
   void GrievanceDetails() async {
@@ -362,16 +487,12 @@ class _GhmcDashboardState extends State<GhmcDashboard> {
         builder: (BuildContext context) {
           return AlertDialog(
             title: Text(TextConstants.no_grievance_available),
-            // title: Text(message + text),
             actions: [
               TextButton(
                 onPressed: () {
-                  //print("clicked");
-                  // print("button Action");
                   Navigator.pop(context);
                 },
                 child: Text(TextConstants.ok),
-                //style: ButtonStyle(backgroundColor:),
               )
             ],
           );
@@ -381,8 +502,8 @@ class _GhmcDashboardState extends State<GhmcDashboard> {
   GrievanceGridDetails() async {
     var uid =
         await SharedPreferencesClass().readTheData(PreferenceConstants.empd);
-    var typeid =
-        await SharedPreferencesClass().readTheData(PreferenceConstants.typeid);
+    // var typeid =
+    //     await SharedPreferencesClass().readTheData(PreferenceConstants.typeid);
     //creating request url with base url and endpoint
     const requesturl = ApiConstants.baseurl + ApiConstants.mobile_menu_list;
 

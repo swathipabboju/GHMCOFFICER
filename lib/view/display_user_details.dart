@@ -1,12 +1,17 @@
+import 'dart:async';
+
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:ghmcofficerslogin/model/login_response_model.dart';
 import 'package:ghmcofficerslogin/model/shared_model.dart';
 import 'package:ghmcofficerslogin/model/user_details_response.dart';
 import 'package:ghmcofficerslogin/model/user_list_response.dart';
 import 'package:ghmcofficerslogin/res/components/background_image.dart';
 import 'package:ghmcofficerslogin/res/components/sharedpreference.dart';
+import 'package:ghmcofficerslogin/res/components/showtoast.dart';
 import 'package:ghmcofficerslogin/res/constants/ApiConstants/api_constants.dart';
 import 'package:ghmcofficerslogin/res/constants/Images/image_constants.dart';
 import 'package:ghmcofficerslogin/res/constants/text_constants/text_constants.dart';
@@ -20,6 +25,8 @@ class UserDetails extends StatefulWidget {
 }
 
 class _UserDetailsState extends State<UserDetails> {
+  StreamSubscription? connection;
+  bool isoffline = false;
   UserDetailsResponse? userDetailsResponse;
   GrievanceUserList? grievanceUserList;
   LoginResponse? loginResponse;
@@ -124,8 +131,14 @@ class _UserDetailsState extends State<UserDetails> {
                                 final details =
                                     userDetailsResponse?.dashboard?[index];
                                 return GestureDetector(
-                                  onTap: () {
-                                    
+                                  onTap: () async{
+                                    var result = await Connectivity().checkConnectivity();
+                                    if(result == ConnectivityResult.mobile ||
+                                 result == ConnectivityResult.wifi ||
+                                  result == ConnectivityResult.bluetooth || 
+                                  result == ConnectivityResult.ethernet ||
+                                   result == ConnectivityResult.vpn)
+                                   {
                                     SharedPreferencesClass().writeTheData(
                                         PreferenceConstants.fulldetails, details?.typeId);   
                                         //print(details?.typeId);
@@ -136,6 +149,16 @@ class _UserDetailsState extends State<UserDetails> {
                                           builder: (context) =>
                                               FullGrievanceDetails(),
                                         ));
+                                   }
+                                   else if(result == ConnectivityResult.none)
+                                   {
+                                    ShowToats.showToast(
+                                    "Check your internet connection", 
+                                    gravity:  ToastGravity.BOTTOM,
+                                    bgcolor: Colors.white,
+                                    textcolor: Colors.black
+                                    );
+                                   }
                                   },
                                   child: Card(
                                     shape: RoundedRectangleBorder(
@@ -198,10 +221,46 @@ class _UserDetailsState extends State<UserDetails> {
 
   @override
   void initState() {
-  
+  connection = Connectivity()
+        .onConnectivityChanged
+        .listen((ConnectivityResult result) {
+      // whenevery connection status is changed.
+      if (result == ConnectivityResult.none) {
+        //there is no any connection
+        setState(() {
+          isoffline = true;
+        });
+      } else if (result == ConnectivityResult.mobile) {
+        //connection is mobile data network
+        setState(() {
+          isoffline = false;
+        });
+      } else if (result == ConnectivityResult.wifi) {
+        //connection is from wifi
+        setState(() {
+          isoffline = false;
+        });
+      } else if (result == ConnectivityResult.ethernet) {
+        //connection is from wired connection
+        setState(() {
+          isoffline = false;
+        });
+      } else if (result == ConnectivityResult.bluetooth) {
+        //connection is from bluetooth threatening
+        setState(() {
+          isoffline = false;
+        });
+      }
+    });
     super.initState();
 
     GrievanceUserDetails();
+  }
+
+  @override
+  void dispose() {
+    connection!.cancel();
+    super.dispose();
   }
 
   void GrievanceUserDetails() async {

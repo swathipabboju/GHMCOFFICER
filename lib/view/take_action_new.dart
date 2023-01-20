@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -36,6 +38,9 @@ class TakeActionNew extends StatefulWidget {
 }
 
 class _TakeActionNewState extends State<TakeActionNew> {
+  StreamSubscription? connection;
+  bool isoffline = false;
+
   final _formKey = GlobalKey<FormState>();
   FocusNode mobilenofocusnode = new FocusNode();
   FocusNode emailidfocusnode = new FocusNode();
@@ -426,7 +431,10 @@ class _TakeActionNewState extends State<TakeActionNew> {
                     child: Card(
                       color: Colors.transparent,
                       child: ElevatedButton(
-                          onPressed: () {
+                          onPressed: () async{
+                            var result = await Connectivity().checkConnectivity();
+                            if(result == ConnectivityResult.mobile || result == ConnectivityResult.wifi)
+                            {
                             updateGrievanceDetails();
                             print("id on submit ${takeaction_statusid}");
 
@@ -471,10 +479,21 @@ class _TakeActionNewState extends State<TakeActionNew> {
                                 getStaffshowAlert(
                                     "${_updateGrievanceResponse?.compid}");
                             }
+                          }
+                          else if(result == ConnectivityResult.none)
+                          {
+                            ShowToats.showToast(
+                                    "Check your internet connection", 
+                                  gravity:  ToastGravity.BOTTOM,
+                                  bgcolor: Colors.white,
+                                  textcolor: Colors.black
+                            );
+                          }
                           },
                           style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.transparent),
-                          child: Text("Submit")),
+                          child: Text("Submit")
+                          ),
                     ),
                   ),
                 ),
@@ -485,6 +504,39 @@ class _TakeActionNewState extends State<TakeActionNew> {
 
   @override
   void initState() {
+
+    connection = Connectivity()
+        .onConnectivityChanged
+        .listen((ConnectivityResult result) {
+      // whenevery connection status is changed.
+      if (result == ConnectivityResult.none) {
+        //there is no any connection
+        setState(() {
+          isoffline = true;
+        });
+      } else if (result == ConnectivityResult.mobile) {
+        //connection is mobile data network
+        setState(() {
+          isoffline = false;
+        });
+      } else if (result == ConnectivityResult.wifi) {
+        //connection is from wifi
+        setState(() {
+          isoffline = false;
+        });
+      } else if (result == ConnectivityResult.ethernet) {
+        //connection is from wired connection
+        setState(() {
+          isoffline = false;
+        });
+      } else if (result == ConnectivityResult.bluetooth) {
+        //connection is from bluetooth threatening
+        setState(() {
+          isoffline = false;
+        });
+      }
+    });
+
     super.initState();
     fetchDetails();
     ForwarToLowerStaffDetails();

@@ -84,10 +84,6 @@ class _AmohAmountPayedListState
                             return GestureDetector(
                               onTap: () async {
                                 AppConstants.vehicle_details_list = amountPaidListResponse?.paidList?[index].vehicleDetailsList?[0];
-                                /* Constants.amount_paid_ticket_id="${details.tICKETID}";
-                                Constants.amount_paid_image = "${details.iMAGE1PATH}";
-                                Constants.amount_paid_estwasteintons = "${details.eSTWT}";
-                                Constants.amount_paid_wardid = "${details.wARDID}"; */
                                 AppConstants.amohamountpaidlist = amountPaidListResponse?.paidList?[index];
 
                                 //EasyLoading.show();

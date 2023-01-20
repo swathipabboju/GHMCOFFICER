@@ -1,4 +1,6 @@
+import 'dart:async';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -7,11 +9,11 @@ import 'package:ghmcofficerslogin/model/shared_model.dart';
 import 'package:ghmcofficerslogin/res/components/background_image.dart';
 import 'package:ghmcofficerslogin/res/components/logo_details.dart';
 import 'package:ghmcofficerslogin/res/components/sharedpreference.dart';
+import 'package:ghmcofficerslogin/res/components/showalert_network.dart';
 import 'package:ghmcofficerslogin/res/constants/ApiConstants/api_constants.dart';
 import 'package:ghmcofficerslogin/res/constants/Images/image_constants.dart';
 import 'package:ghmcofficerslogin/res/constants/routes/app_routes.dart';
 import 'package:ghmcofficerslogin/res/constants/text_constants/text_constants.dart';
-
 
 class AmohDashboardList extends StatefulWidget {
   const AmohDashboardList({super.key});
@@ -21,6 +23,8 @@ class AmohDashboardList extends StatefulWidget {
 }
 
 class _AmohDashboardList extends State<AmohDashboardList> {
+  StreamSubscription? connection;
+  bool isoffline = false;
   AMOHDashboardListResponse? amohDashboardListResponse;
   @override
   Widget build(BuildContext context) {
@@ -45,101 +49,176 @@ class _AmohDashboardList extends State<AmohDashboardList> {
                       text1: 'No of Requests by Citizen',
                       text2:
                           '${amohDashboardListResponse?.aMOHList?[0].nOOFREQUESTS ?? ""}',
-                      onTap: (() {
+                      onTap: (() async{
                         if (amohDashboardListResponse
                                 ?.aMOHList?[0].nOOFREQUESTS ==
                             "0") {
                           showAlert();
                         } else {
+                          var result = await Connectivity().checkConnectivity();
+                          if(result == ConnectivityResult.mobile || result == ConnectivityResult.wifi)
+                          {
                           print("data");
-                          Navigator.pushNamed(
-                              context, AppRoutes.requestlist);
+                          Navigator.pushNamed(context, AppRoutes.requestlist);
+                          }
+                          else if (result == ConnectivityResult.none) {
+                            //Navigator.pop(context);
+                            AlertsNetwork.showAlertDialog(
+                                context, "Please check your network connection",
+                                align: TextAlign.end, onpressed: () {
+                              Navigator.pop(context);
+                            }, buttontextcolor: Colors.teal, buttontext: "OK");
+                          }
+
                         }
                       }),
                     ),
-                    
                     listCardWidget(
                         text1: 'No of Requests by AMOH',
                         text2: '16',
-                        onTap: () {
-                           Navigator.pushNamed(
-                             context, AppRoutes.requestbyamoh);
+                        onTap: () async {
+                          var result = await Connectivity().checkConnectivity();
+                          if (result == ConnectivityResult.mobile ||
+                              result == ConnectivityResult.wifi) {
+                            Navigator.pushNamed(
+                                context, AppRoutes.requestbyamoh);
+                          } else if (result == ConnectivityResult.none) {
+                            //Navigator.pop(context);
+                            AlertsNetwork.showAlertDialog(
+                                context, "Please check your network connection",
+                                align: TextAlign.end, onpressed: () {
+                              Navigator.pop(context);
+                            }, buttontextcolor: Colors.teal, buttontext: "OK");
+                          }
                         }),
-
                     listCardWidget(
                       text1: 'Payment Confirmation',
                       text2:
                           '${amohDashboardListResponse?.aMOHList?[0].pAYMENTCONFIRMATION ?? ""}',
-                      onTap: (() {
+                      onTap: (() async{
+                        var result = await Connectivity().checkConnectivity();
                         if (amohDashboardListResponse
                                 ?.aMOHList?[0].pAYMENTCONFIRMATION ==
                             "0") {
                           showAlert();
                         } else {
-                          
+                          if(result == ConnectivityResult.mobile || result == ConnectivityResult.wifi)
+                          {
                           Navigator.pushNamed(
                               context, AppRoutes.amohamountpayedlist);
-                              EasyLoading.show();
+                          EasyLoading.show();
+                          }
+                          else if (result == ConnectivityResult.none) {
+                            //Navigator.pop(context);
+                            AlertsNetwork.showAlertDialog(
+                                context, "Please check your network connection",
+                                align: TextAlign.end, onpressed: () {
+                              Navigator.pop(context);
+                            }, buttontextcolor: Colors.teal, buttontext: "OK");
+                          }
                         }
                       }),
                     ),
-
                     listCardWidget(
-                      text1: 'Raise Request',
-                      text2: '',
-                      onTap: () {
-                        
+                        text1: 'Raise Request',
+                        text2: '',
+                        onTap: () async{
+                          var result = await Connectivity().checkConnectivity();
+                          if(result == ConnectivityResult.mobile || result == ConnectivityResult.wifi)
+                          {
                           Navigator.pushNamed(
                               context, AppRoutes.raiserequest_raiserequest);
-                        } 
-                    ),
-
+                          }
+                          else if (result == ConnectivityResult.none) {
+                            //Navigator.pop(context);
+                            AlertsNetwork.showAlertDialog(
+                                context, "Please check your network connection",
+                                align: TextAlign.end, onpressed: () {
+                              Navigator.pop(context);
+                            }, buttontextcolor: Colors.teal, buttontext: "OK");
+                          }
+                        }),
                     listCardWidget(
                         text1: 'Concessioner Rejected',
                         text2:
                             '${amohDashboardListResponse?.aMOHList?[0].cONCESSIONERREJECTED ?? ""}',
-                        onTap: () {
+                        onTap: ()async{
                           if (amohDashboardListResponse
-                                ?.aMOHList?[0].cONCESSIONERREJECTED ==
-                            "0") {
-                          showAlert();
-                        } else {
-                          Navigator.pushNamed(
-                              context, AppRoutes.rejectedtickets);
-                        }
-                        }
-                        ),
+                                  ?.aMOHList?[0].cONCESSIONERREJECTED ==
+                              "0") {
+                            showAlert();
+                          } else {
+                          var result = await Connectivity().checkConnectivity();
+                          if(result == ConnectivityResult.mobile || result == ConnectivityResult.wifi)
+                          {
+                            Navigator.pushNamed(
+                                context, AppRoutes.rejectedtickets);
+                          }
+                          else if (result == ConnectivityResult.none) {
+                            //Navigator.pop(context);
+                            AlertsNetwork.showAlertDialog(
+                                context, "Please check your network connection",
+                                align: TextAlign.end, onpressed: () {
+                              Navigator.pop(context);
+                            }, buttontextcolor: Colors.teal, buttontext: "OK");
+                          }
 
+                          }
+                        }),
                     listCardWidget(
                         text1: 'Concessioner Close Tickets',
                         text2:
                             '${amohDashboardListResponse?.aMOHList?[0].cONCESSIONERCLOSETICKETS ?? ""}',
-                        onTap: () {
-                            if (amohDashboardListResponse
-                                ?.aMOHList?[0].cONCESSIONERCLOSETICKETS == "0") {
-                          showAlert();
-                        } else {
-                          Navigator.pushNamed(
-                              context, AppRoutes.closedticketlist);
-                        }
-                        }
-                        ),
+                        onTap: () async{
+                          if (amohDashboardListResponse
+                                  ?.aMOHList?[0].cONCESSIONERCLOSETICKETS ==
+                              "0") {
+                            showAlert();
+                          } else {
+                            var result = await Connectivity().checkConnectivity();
+                          if(result == ConnectivityResult.mobile || result == ConnectivityResult.wifi)
+                          {
+                            Navigator.pushNamed(
+                                context, AppRoutes.closedticketlist);
+                          }
+                          else if (result == ConnectivityResult.none) {
+                            //Navigator.pop(context);
+                            AlertsNetwork.showAlertDialog(
+                                context, "Please check your network connection",
+                                align: TextAlign.end, onpressed: () {
+                              Navigator.pop(context);
+                            }, buttontextcolor: Colors.teal, buttontext: "OK");
+                          }
 
+                          }
+                        }),
                     listCardWidget(
                         text1: 'AMOH Close Tickets',
                         text2:
                             '${amohDashboardListResponse?.aMOHList?[0].aMOHCLOSETICKETS ?? ""}',
-                        onTap: () {
+                        onTap: () async{
                           if (amohDashboardListResponse
-                                ?.aMOHList?[0].aMOHCLOSETICKETS ==
-                            "0") {
-                          //showAlert("No records available");
-                        } else {
-                           Navigator.pushNamed(
-                               context, AppRoutes.amohclosedticketlist);
-                        }
-                        }
-                        ),
+                                  ?.aMOHList?[0].aMOHCLOSETICKETS ==
+                              "0") {
+                            //showAlert("No records available");
+                          } else {
+                             var result = await Connectivity().checkConnectivity();
+                          if(result == ConnectivityResult.mobile || result == ConnectivityResult.wifi)
+                          {
+                            Navigator.pushNamed(
+                                context, AppRoutes.amohclosedticketlist);
+                          }
+                          else if (result == ConnectivityResult.none) {
+                            //Navigator.pop(context);
+                            AlertsNetwork.showAlertDialog(
+                                context, "Please check your network connection",
+                                align: TextAlign.end, onpressed: () {
+                              Navigator.pop(context);
+                            }, buttontextcolor: Colors.teal, buttontext: "OK");
+                          }
+
+                          }
+                        }),
                   ],
                 )
               ],
@@ -183,11 +262,10 @@ class _AmohDashboardList extends State<AmohDashboardList> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text("no records available"),
+            title: Text("No records available"),
             actions: [
               TextButton(
                 onPressed: () {
-                
                   Navigator.pop(context);
                 },
                 child: Text(TextConstants.ok),
@@ -195,10 +273,41 @@ class _AmohDashboardList extends State<AmohDashboardList> {
             ],
           );
         }); //showDialog
-  } 
+  }
 
   @override
   void initState() {
+    connection = Connectivity()
+        .onConnectivityChanged
+        .listen((ConnectivityResult result) {
+      // whenevery connection status is changed.
+      if (result == ConnectivityResult.none) {
+        //there is no any connection
+        setState(() {
+          isoffline = true;
+        });
+      } else if (result == ConnectivityResult.mobile) {
+        //connection is mobile data network
+        setState(() {
+          isoffline = false;
+        });
+      } else if (result == ConnectivityResult.wifi) {
+        //connection is from wifi
+        setState(() {
+          isoffline = false;
+        });
+      } else if (result == ConnectivityResult.ethernet) {
+        //connection is from wired connection
+        setState(() {
+          isoffline = false;
+        });
+      } else if (result == ConnectivityResult.bluetooth) {
+        //connection is from bluetooth threatening
+        setState(() {
+          isoffline = false;
+        });
+      }
+    });
     // TODO: implement initState
     super.initState();
     fetchAmohDashboardDetails();

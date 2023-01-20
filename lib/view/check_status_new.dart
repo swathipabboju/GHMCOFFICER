@@ -90,212 +90,192 @@ class _CheckStatusSampleState extends State<CheckStatusSample> {
               onChanged: (value) => _runFilter(value),
               screenWidth: 1,
               onPressed: () {},
-            ),
-            viewgrievanceflag
-                ? Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 10.0),
-                      child: Container(
-                        color: Colors.white,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            Expanded(
-                              child: ListView.builder(
-                                  shrinkWrap: true,
-                                  itemCount: finalitemsSearchListResponse
-                                      .asMap()
-                                      .keys
-                                      .toList()
-                                      .length,
-                                  itemBuilder:
-                                      (BuildContext context, int index1) {
-                                    return Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: <Widget>[
-                                        Container(
-                                          height: MediaQuery.of(context)
-                                                  .size
-                                                  .height *
-                                              0.05,
-                                          color:
-                                              Color.fromARGB(255, 20, 55, 83),
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                Text(
-                                                  finalitems.keys
-                                                      .toList()[index1],
-                                                  style: TextStyle(
-                                                      fontSize: 15,
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                      color: Colors.white),
-                                                ),
-                                                Text(
-                                                  "${finalitemsSearchListResponse.asMap().values.toList()[index1].length}",
-                                                  style: TextStyle(
-                                                      fontSize: 15,
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                      color: Colors.white),
-                                                ),
-                                              ],
-                                            ),
+            ),viewgrievanceflag?
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10.0),
+                child: Container(
+                  color: Colors.white,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Expanded(
+                        child: ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: finalitemsSearchListResponse
+                                .asMap()
+                                .keys
+                                .toList()
+                                .length,
+                            itemBuilder: (BuildContext context, int index1) {
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  Container(
+                                    height: MediaQuery.of(context).size.height *
+                                        0.05,
+                                    color: Color.fromARGB(255, 20, 55, 83),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            finalitems.keys.toList()[index1],
+                                            style: TextStyle(
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.w600,
+                                                color: Colors.white),
                                           ),
-                                        ),
-                                        ListView.builder(
-                                            itemCount:
-                                                finalitemsSearchListResponse
-                                                    .asMap()
-                                                    .values
-                                                    .toList()[index1]
-                                                    .length,
-                                            physics: ClampingScrollPhysics(),
-                                            shrinkWrap: true,
-                                            itemBuilder: (BuildContext context,
-                                                int index2) {
-                                              return GestureDetector(
-                                                onTap: (() {
-                                                  SharedPreferencesClass()
-                                                      .writeTheData(
-                                                          PreferenceConstants
-                                                              .check_status_id,
-                                                          finalitemsSearchListResponse
-                                                                      .asMap()
-                                                                      .values
-                                                                      .toList()[
-                                                                  index1]
-                                                              [index2]["ID"]);
+                                          Text(
+                                            "${finalitemsSearchListResponse.asMap().values.toList()[index1].length}",
+                                            style: TextStyle(
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.w600,
+                                                color: Colors.white),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  ListView.builder(
+                                      itemCount: finalitemsSearchListResponse
+                                          .asMap()
+                                          .values
+                                          .toList()[index1]
+                                          .length,
+                                      physics: ClampingScrollPhysics(),
+                                      shrinkWrap: true,
+                                      itemBuilder:
+                                          (BuildContext context, int index2) {
+                                        return GestureDetector(
+                                          onTap: (() {
+                                            SharedPreferencesClass()
+                                                .writeTheData(
+                                                    PreferenceConstants
+                                                        .check_status_id,
+                                                    finalitemsSearchListResponse
+                                                            .asMap()
+                                                            .values
+                                                            .toList()[index1]
+                                                        [index2]["ID"]);
 
-                                                  Navigator.pushNamed(
-                                                      context,
-                                                      AppRoutes
-                                                          .grivancedetails);
-                                                }),
-                                                child: Container(
-                                                    child: Column(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceBetween,
-                                                  children: [
-                                                    RowComponent(
-                                                        TextConstants
-                                                            .check_status_id,
-                                                        finalitemsSearchListResponse
-                                                                    .asMap()
-                                                                    .values
-                                                                    .toList()[
-                                                                index1][index2][
-                                                            TextConstants
-                                                                .check_status_id]),
-                                                    Line(),
-                                                    RowComponent(
-                                                        TextConstants
-                                                            .check_status_category_name,
-                                                        finalitemsSearchListResponse
-                                                                    .asMap()
-                                                                    .values
-                                                                    .toList()[
-                                                                index1][index2][
-                                                            TextConstants
-                                                                .check_status_category_name]),
-                                                    Line(),
-                                                    RowComponent(
-                                                        TextConstants
-                                                            .check_status_subcategory_name,
-                                                        finalitemsSearchListResponse
-                                                                    .asMap()
-                                                                    .values
-                                                                    .toList()[
-                                                                index1][index2][
-                                                            TextConstants
-                                                                .check_status_subcategory_name]),
-                                                    Line(),
-                                                    RowComponent(
-                                                        TextConstants
-                                                            .check_status_time_stamp,
-                                                        finalitemsSearchListResponse
-                                                                    .asMap()
-                                                                    .values
-                                                                    .toList()[
-                                                                index1][index2][
-                                                            TextConstants
-                                                                .check_status_time_stamp]),
-                                                    Line(),
-                                                    RowComponent(
-                                                        TextConstants
-                                                            .check_status_assigned_to,
-                                                        finalitemsSearchListResponse
-                                                                    .asMap()
-                                                                    .values
-                                                                    .toList()[
-                                                                index1][index2][
-                                                            TextConstants
-                                                                .check_status_assigned_to]),
-                                                    Line(),
-                                                    RowComponent(
-                                                        TextConstants
-                                                            .check_status_status,
-                                                        finalitemsSearchListResponse
-                                                                    .asMap()
-                                                                    .values
-                                                                    .toList()[
-                                                                index1][index2][
-                                                            TextConstants
-                                                                .check_status_status]),
-                                                    Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                    .symmetric(
-                                                                vertical: 10.0,
-                                                                horizontal:
-                                                                    10.0),
-                                                        child: Container(
-                                                            // width: this._width,
-                                                            child: Column(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .center,
-                                                          children: <Widget>[
-                                                            Row(
-                                                              children: _iconViews(
-                                                                  status: finalitemsSearchListResponse
-                                                                          .asMap()
-                                                                          .values
-                                                                          .toList()[index1][index2]
-                                                                      [
-                                                                      TextConstants
-                                                                          .check_status_status]),
-                                                            ),
-                                                            SizedBox(
-                                                              height: 8,
-                                                            ),
-                                                            Row(
-                                                              children:
-                                                                  _titleViews(),
-                                                            ),
-                                                          ],
-                                                        )))
-                                                  ],
-                                                )),
-                                              );
-                                            }),
-                                      ],
-                                    );
-                                  }),
-                            )
-                          ],
-                        ),
-                      ),
-                    ),
-                  )
-                : Text("")
+                                            Navigator.pushNamed(context,
+                                                AppRoutes.grivancedetails);
+                                          }),
+                                          child: Container(
+                                              child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              RowComponent(
+                                                  TextConstants.check_status_id,
+                                                  finalitemsSearchListResponse
+                                                              .asMap()
+                                                              .values
+                                                              .toList()[index1]
+                                                          [index2][
+                                                      TextConstants
+                                                          .check_status_id]),
+                                              Line(),
+                                              RowComponent(
+                                                  TextConstants
+                                                      .check_status_category_name,
+                                                  finalitemsSearchListResponse
+                                                              .asMap()
+                                                              .values
+                                                              .toList()[index1]
+                                                          [index2][
+                                                      TextConstants
+                                                          .check_status_category_name]),
+                                              Line(),
+                                              RowComponent(
+                                                  TextConstants
+                                                      .check_status_subcategory_name,
+                                                  finalitemsSearchListResponse
+                                                              .asMap()
+                                                              .values
+                                                              .toList()[index1]
+                                                          [index2][
+                                                      TextConstants
+                                                          .check_status_subcategory_name]),
+                                              Line(),
+                                              RowComponent(
+                                                  TextConstants
+                                                      .check_status_time_stamp,
+                                                  finalitemsSearchListResponse
+                                                              .asMap()
+                                                              .values
+                                                              .toList()[index1]
+                                                          [index2][
+                                                      TextConstants
+                                                          .check_status_time_stamp]),
+                                              Line(),
+                                              RowComponent(
+                                                  TextConstants
+                                                      .check_status_assigned_to,
+                                                  finalitemsSearchListResponse
+                                                              .asMap()
+                                                              .values
+                                                              .toList()[index1]
+                                                          [index2][
+                                                      TextConstants
+                                                          .check_status_assigned_to]),
+                                              Line(),
+                                              RowComponent(
+                                                  TextConstants
+                                                      .check_status_status,
+                                                  finalitemsSearchListResponse
+                                                              .asMap()
+                                                              .values
+                                                              .toList()[index1]
+                                                          [index2][
+                                                      TextConstants
+                                                          .check_status_status]),
+                                              Padding(
+                                                  padding: const EdgeInsets
+                                                          .symmetric(
+                                                      vertical: 10.0,
+                                                      horizontal: 10.0),
+                                                  child: Container(
+                                                      // width: this._width,
+                                                      child: Column(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    children: <Widget>[
+                                                      Row(
+                                                        children: _iconViews(
+                                                            status: finalitemsSearchListResponse
+                                                                        .asMap()
+                                                                        .values
+                                                                        .toList()[
+                                                                    index1][index2]
+                                                                [TextConstants
+                                                                    .check_status_status]),
+                                                      ),
+                                                      SizedBox(
+                                                        height: 8,
+                                                      ),
+                                                      Row(
+                                                        children: _titleViews(),
+                                                      ),
+                                                    ],
+                                                  )))
+                                            ],
+                                          )),
+                                        );
+                                      }),
+                                ],
+                              );
+                            }),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ):Text("")
           ],
         ),
       ]), /* */

@@ -1,6 +1,10 @@
+import 'dart:async';
+
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:ghmcofficerslogin/model/shared_model.dart';
 import 'package:ghmcofficerslogin/model/user_details_response.dart';
 import 'package:ghmcofficerslogin/model/user_list_response.dart';
@@ -9,8 +13,10 @@ import 'package:ghmcofficerslogin/res/components/logo_details.dart';
 import 'package:ghmcofficerslogin/res/components/navigation.dart';
 import 'package:ghmcofficerslogin/res/components/searchbar.dart';
 import 'package:ghmcofficerslogin/res/components/sharedpreference.dart';
+import 'package:ghmcofficerslogin/res/components/showtoast.dart';
 import 'package:ghmcofficerslogin/res/constants/ApiConstants/api_constants.dart';
 import 'package:ghmcofficerslogin/res/constants/Images/image_constants.dart';
+import 'package:ghmcofficerslogin/res/constants/app_constants.dart';
 import 'package:ghmcofficerslogin/res/constants/routes/app_routes.dart';
 import 'package:ghmcofficerslogin/res/constants/text_constants/text_constants.dart';
 import 'package:ghmcofficerslogin/View/display_user_details.dart';
@@ -23,10 +29,13 @@ class MyTotalGrievances extends StatefulWidget {
 }
 
 class _MyTotalGrievances extends State<MyTotalGrievances> {
+  
+ StreamSubscription? connection;
+  bool isoffline = false;
+
   GrievanceUserList? grievanceUserList;
   UserDetailsResponse? userDetailsResponse;
   TextEditingController Complaint_id = TextEditingController();
-  final _formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -77,28 +86,6 @@ class _MyTotalGrievances extends State<MyTotalGrievances> {
             Container(
                 child: Stack(
               children: [
-                /* Container(
-                  margin:
-                      EdgeInsets.symmetric(horizontal: 30.0, vertical: 15.0),
-                  child: TextFormField(
-                    decoration: InputDecoration(
-                        hintText: 'Search by Complaint Id',
-                        hintStyle: TextStyle(
-                          color: Colors.white,
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                              width: 1, color: Colors.black), //<-- SEE HERE
-                        ),
-                        icon: IconButton(
-                            onPressed: () {},
-                            icon: Icon(
-                              Icons.search,
-                              color: Colors.white,
-                            ))),
-                  ),
-
-                ), 270822556445 */
                 ReusableSearchbar(
                   controller: Complaint_id,
                   bgColor: Colors.white,
@@ -126,6 +113,13 @@ class _MyTotalGrievances extends State<MyTotalGrievances> {
 
                       return GestureDetector(
                         onTap: () async {
+                          var result = await Connectivity().checkConnectivity();
+                          if(result == ConnectivityResult.mobile || 
+                          result == ConnectivityResult.wifi || 
+                          result == ConnectivityResult.bluetooth || 
+                          result == ConnectivityResult.ethernet || 
+                          result == ConnectivityResult.vpn)
+                          {
                           await SharedPreferencesClass().writeTheData(
                               PreferenceConstants.userdetails,
                               datalist?.mODEID);
@@ -137,6 +131,16 @@ class _MyTotalGrievances extends State<MyTotalGrievances> {
                               context,
                               MaterialPageRoute(
                                   builder: (context) => UserDetails()));
+                        }
+                        else if(result == ConnectivityResult.none)
+                        {
+                          ShowToats.showToast(
+                                    "Check your internet connection", 
+                                  gravity:  ToastGravity.CENTER,
+                                  bgcolor: Colors.white,
+                                  textcolor: Colors.black
+                                  );
+                        }
                         },
                         child: Card(
                           shape: RoundedRectangleBorder(
@@ -194,6 +198,38 @@ class _MyTotalGrievances extends State<MyTotalGrievances> {
 
   @override
   void initState() {
+    connection = Connectivity()
+        .onConnectivityChanged
+        .listen((ConnectivityResult result) {
+      // whenevery connection status is changed.
+      if (result == ConnectivityResult.none) {
+        //there is no any connection
+        setState(() {
+          isoffline = true;
+        });
+      } else if (result == ConnectivityResult.mobile) {
+        //connection is mobile data network
+        setState(() {
+          isoffline = false;
+        });
+      } else if (result == ConnectivityResult.wifi) {
+        //connection is from wifi
+        setState(() {
+          isoffline = false;
+        });
+      } else if (result == ConnectivityResult.ethernet) {
+        //connection is from wired connection
+        setState(() {
+          isoffline = false;
+        });
+      } else if (result == ConnectivityResult.bluetooth) {
+        //connection is from bluetooth threatening
+        setState(() {
+          isoffline = false;
+        });
+      }
+    });
+    
     super.initState();
 
     GrievanceUserDetails();
@@ -212,8 +248,8 @@ class _MyTotalGrievances extends State<MyTotalGrievances> {
 
     //creating payload because request type is POST
     var requestPayload = {
-      "userid": "cgg@ghmc",
-      "password": "ghmc@cgg@2018",
+      "userid": AppConstants.userid,
+      "password": AppConstants.password,
       "uid": uid,
       "type_id": typeid,
       "slftype": slftype

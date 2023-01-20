@@ -1,14 +1,18 @@
+import 'dart:async';
+
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_pin_code_fields/flutter_pin_code_fields.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:ghmcofficerslogin/model/shared_model.dart';
 import 'package:ghmcofficerslogin/res/components/background_image.dart';
 import 'package:ghmcofficerslogin/res/components/sharedpreference.dart';
+import 'package:ghmcofficerslogin/res/components/showtoast.dart';
 import 'package:ghmcofficerslogin/res/components/textwidget.dart';
 import 'package:ghmcofficerslogin/res/constants/Images/image_constants.dart';
 import 'package:ghmcofficerslogin/res/constants/routes/app_routes.dart';
 import 'package:ghmcofficerslogin/res/constants/text_constants/text_constants.dart';
 import 'package:ghmcofficerslogin/View/GhmcDashboard.dart';
-import 'package:ghmcofficerslogin/view/privacy_policy.dart';
 
 class Mpin extends StatefulWidget {
   const Mpin({super.key});
@@ -18,6 +22,8 @@ class Mpin extends StatefulWidget {
 }
 
 class _MpinState extends State<Mpin> {
+   StreamSubscription? connection;
+  bool isoffline = false;
   String? mpinValue;
   @override
   Widget build(BuildContext context) {
@@ -65,6 +71,12 @@ class _MpinState extends State<Mpin> {
                       ),
                       ElevatedButton(
                         onPressed: () async {
+                          var result = await Connectivity().checkConnectivity();
+                          if (result == ConnectivityResult.mobile || 
+                          result == ConnectivityResult.wifi || 
+                          result == ConnectivityResult.bluetooth || 
+                          result == ConnectivityResult.ethernet ||
+                           result == ConnectivityResult.vpn) {
                           // readsharedprefData();
                           var res = await SharedPreferencesClass()
                               .readTheData(PreferenceConstants.mpin);
@@ -74,15 +86,16 @@ class _MpinState extends State<Mpin> {
                               .readTheData(PreferenceConstants.roleId);
                           print("mpin---${res}  ");
                           print("enters mpin ${mpinValue}");
-                          // print("read mpin from  sahredpref in login is  ${res}");
-                          // print("user enterd value in login screen ${mpinValue}");
                           if (res == mpinValue) {
+                            //print("roled id --------- ${roleId}");
                             if (roleId == "33") {
                               Navigator.pushNamed(
                                   context, AppRoutes.corporatordashboard);
                               print("roleid ${roleId}");
                               mpinValue = '';
-                            }  if (des == "Concessionaire Incharge") {
+                            } 
+                            else{
+                               if (des == "Concessionaire Incharge") {
                               Navigator.pushNamed(
                                   context, AppRoutes.concessionairedashboard);
                               print("desconce ${des}");
@@ -98,10 +111,19 @@ class _MpinState extends State<Mpin> {
                               print("desghmc ${des}");
                               mpinValue = '';
                             }
+                          }
                           } else {
                             showAlert(TextConstants.invalid_mpin);
                             mpinValue = '';
                           }
+                        }
+                        else if(result == ConnectivityResult.none){
+                          ShowToats.showToast(
+                                "Check your internet connection",
+                                gravity: ToastGravity.CENTER,
+                                bgcolor: Colors.white,
+                                textcolor: Colors.black);
+                        }
 
                           // print("read mpin from  sahredpref in login is  ${res}");
                           // print("user enterd value in login screen ${mpinValue}");
@@ -174,6 +196,43 @@ class _MpinState extends State<Mpin> {
             ],
           );
         }); //showDialog
-  } //
+  } 
+
+   @override
+  void initState() {
+    // TODO: implement initState
+    connection = Connectivity()
+        .onConnectivityChanged
+        .listen((ConnectivityResult result) {
+      // whenevery connection status is changed.
+      if (result == ConnectivityResult.none) {
+        //there is no any connection
+        setState(() {
+          isoffline = true;
+        });
+      } else if (result == ConnectivityResult.mobile) {
+        //connection is mobile data network
+        setState(() {
+          isoffline = false;
+        });
+      } else if (result == ConnectivityResult.wifi) {
+        //connection is from wifi
+        setState(() {
+          isoffline = false;
+        });
+      } else if (result == ConnectivityResult.ethernet) {
+        //connection is from wired connection
+        setState(() {
+          isoffline = false;
+        });
+      } else if (result == ConnectivityResult.bluetooth) {
+        //connection is from bluetooth threatening
+        setState(() {
+          isoffline = false;
+        });
+      }
+    });
+    super.initState();
+  }
 
 }

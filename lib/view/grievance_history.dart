@@ -1,6 +1,10 @@
+import 'dart:async';
+
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:ghmcofficerslogin/model/history_response.dart';
@@ -8,6 +12,7 @@ import 'package:ghmcofficerslogin/model/shared_model.dart';
 import 'package:ghmcofficerslogin/res/components/background_image.dart';
 import 'package:ghmcofficerslogin/res/components/button.dart';
 import 'package:ghmcofficerslogin/res/components/sharedpreference.dart';
+import 'package:ghmcofficerslogin/res/components/showtoast.dart';
 import 'package:ghmcofficerslogin/res/constants/ApiConstants/api_constants.dart';
 import 'package:ghmcofficerslogin/res/constants/Images/image_constants.dart';
 import 'package:ghmcofficerslogin/res/constants/app_constants.dart';
@@ -24,6 +29,8 @@ class GrievanceHistory extends StatefulWidget {
 }
 
 class _GrievanceHistoryState extends State<GrievanceHistory> {
+  StreamSubscription? connection;
+  bool isoffline = false;
   GrievanceHistoryResponse? grievanceHistoryResponse;
 
   String? _currentAddress;
@@ -62,9 +69,8 @@ class _GrievanceHistoryState extends State<GrievanceHistory> {
                       itemBuilder: (context, index) {
                         final details =
                             grievanceHistoryResponse?.grievance?[index];
-                            
+
                         var splitted_latlong = details?.latlon?.split(",");
-                        
 
                         lat = splitted_latlong?[0];
 
@@ -74,7 +80,6 @@ class _GrievanceHistoryState extends State<GrievanceHistory> {
                             grievanceHistoryResponse?.commentsFlag == "true") {
                           if (grievanceHistoryResponse!.comments!.isNotEmpty &&
                               details?.latlon != "0.0,0.0") {
-                                
                             WidgetsBinding.instance.addPostFrameCallback((_) {
                               setState(() {
                                 directions = true;
@@ -270,9 +275,22 @@ class _GrievanceHistoryState extends State<GrievanceHistory> {
                               child: textButton(
                                 text: TextConstants.view_comments,
                                 textcolor: Colors.white,
-                                onPressed: () {
+                                onPressed: () async{
+                                  var result = await Connectivity().checkConnectivity();
+                                  if(result == ConnectivityResult.mobile || result == ConnectivityResult.wifi)
+                                  {
                                   Navigator.pushNamed(
                                       context, AppRoutes.viewcomment);
+                                  }
+                                  else if(result == ConnectivityResult.none)
+                                  {
+                                    ShowToats.showToast(
+                                    "Check your internet connection", 
+                                    gravity:  ToastGravity.BOTTOM,
+                                    bgcolor: Colors.white,
+                                    textcolor: Colors.black
+                                  );
+                                  }
                                 },
                               ),
                             ),
@@ -290,8 +308,21 @@ class _GrievanceHistoryState extends State<GrievanceHistory> {
                       child: textButton(
                         text: TextConstants.take_action,
                         textcolor: Colors.white,
-                        onPressed: () {
-                          Navigator.pushNamed(context, AppRoutes.takeactionnew);
+                        onPressed: () async{
+                          var result = await Connectivity().checkConnectivity();
+                          if(result == ConnectivityResult.mobile || result == ConnectivityResult.wifi)
+                          {
+                            Navigator.pushNamed(context, AppRoutes.takeactionnew);
+                          }
+                          else if(result == ConnectivityResult.none)
+                          {
+                            ShowToats.showToast(
+                                    "Check your internet connection", 
+                                  gravity:  ToastGravity.BOTTOM,
+                                  bgcolor: Colors.white,
+                                  textcolor: Colors.black
+                            );
+                          }
                         },
                       ),
                     ),
@@ -329,14 +360,7 @@ class _GrievanceHistoryState extends State<GrievanceHistory> {
             actions: [
               Center(
                   child: Container(
-                      child: /* FadeInImage(image: NetworkImage(photo!), 
-                placeholder: AssetImage(ImageConstants.no_uploaded),
-                imageErrorBuilder: (context, error, stackTrace) {
-                  return Image.asset(ImageConstants.no_uploaded, fit: BoxFit.fitWidth,);
-                },
-                fit: BoxFit.fitWidth,
-                ) */
-                          Image.network(
+                      child: Image.network(
                 photo!,
                 errorBuilder: (context, error, stackTrace) {
                   return Image.asset(ImageConstants.no_uploaded);
@@ -391,7 +415,7 @@ class _GrievanceHistoryState extends State<GrievanceHistory> {
               style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
-                  fontSize: 16),
+                  fontSize: 14),
             ),
           ),
           SizedBox(
@@ -401,7 +425,7 @@ class _GrievanceHistoryState extends State<GrievanceHistory> {
             flex: 2,
             child: Text(
               value.toString(),
-              style: TextStyle(color: Colors.white, fontSize: 16),
+              style: TextStyle(color: Colors.white, fontSize: 14),
             ),
           ),
           Expanded(
@@ -443,8 +467,46 @@ class _GrievanceHistoryState extends State<GrievanceHistory> {
 
   @override
   void initState() {
+      connection = Connectivity()
+        .onConnectivityChanged
+        .listen((ConnectivityResult result) {
+      // whenevery connection status is changed.
+      if (result == ConnectivityResult.none) {
+        //there is no any connection
+        setState(() {
+          isoffline = true;
+        });
+      } else if (result == ConnectivityResult.mobile) {
+        //connection is mobile data network
+        setState(() {
+          isoffline = false;
+        });
+      } else if (result == ConnectivityResult.wifi) {
+        //connection is from wifi
+        setState(() {
+          isoffline = false;
+        });
+      } else if (result == ConnectivityResult.ethernet) {
+        //connection is from wired connection
+        setState(() {
+          isoffline = false;
+        });
+      } else if (result == ConnectivityResult.bluetooth) {
+        //connection is from bluetooth threatening
+        setState(() {
+          isoffline = false;
+        });
+      }
+    });
+
     super.initState();
     fetchDetails();
+  }
+
+  @override
+  void dispose() {
+    connection!.cancel();
+    super.dispose();
   }
 
   fetchDetails() async {
@@ -472,7 +534,6 @@ class _GrievanceHistoryState extends State<GrievanceHistory> {
         requesturl,
         data: requestPayload,
       );
-     
 
       //converting response from String to json
       final data = GrievanceHistoryResponse.fromJson(response.data);
@@ -482,7 +543,6 @@ class _GrievanceHistoryState extends State<GrievanceHistory> {
           EasyLoading.dismiss();
           if (data.grievance != null && data.grievance!.length > 0) {
             grievanceHistoryResponse = data;
-           
           }
         }
       });
@@ -501,13 +561,6 @@ class _GrievanceHistoryState extends State<GrievanceHistory> {
       //print("status code is ${e.response?.statusCode}");
     }
 // step 5: print the response
-  }
-
-  @override
-  void dispose() {
-    // TODO: implement dispose
-    super.dispose();
-    //setState(() {});
   }
 
 //handling permissions

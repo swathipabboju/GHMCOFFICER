@@ -1,9 +1,14 @@
+import 'dart:async';
+
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:ghmcofficerslogin/model/login_response.dart';
 import 'package:ghmcofficerslogin/model/shared_model.dart';
 import 'package:ghmcofficerslogin/res/components/background_image.dart';
 import 'package:ghmcofficerslogin/res/components/sharedpreference.dart';
+import 'package:ghmcofficerslogin/res/components/showtoast.dart';
 import 'package:ghmcofficerslogin/res/components/textwidget.dart';
 import 'package:ghmcofficerslogin/res/constants/ApiConstants/api_constants.dart';
 import 'package:ghmcofficerslogin/res/constants/Images/image_constants.dart';
@@ -18,7 +23,10 @@ class Loginpage extends StatefulWidget {
 }
 
 class _LoginpageState extends State<Loginpage> {
-  TextEditingController number = TextEditingController(text: "9100923106");
+  StreamSubscription? connection;
+  bool isoffline = false;
+
+  TextEditingController number = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   FocusNode myFocusNode = new FocusNode();
   bool _isLoading = false;
@@ -86,7 +94,14 @@ class _LoginpageState extends State<Loginpage> {
                             ),
                             ElevatedButton(
                               onPressed: () async {
-                                if (_formKey.currentState!.validate()) {
+                                var result =
+                                    await Connectivity().checkConnectivity();
+                                if (result == ConnectivityResult.mobile || 
+                                result == ConnectivityResult.wifi || 
+                                result == ConnectivityResult.bluetooth || 
+                                result == ConnectivityResult.ethernet || 
+                                result == ConnectivityResult.vpn) {
+                                  if (_formKey.currentState!.validate()) {
                                   //print("onpressed");
                                   fetchLoginDetailsFromApi();
                                   if (_isLoading) return;
@@ -100,6 +115,17 @@ class _LoginpageState extends State<Loginpage> {
                                     _isLoading = false;
                                   });
                                 }
+                                } else if (result == ConnectivityResult.none) {
+                                  //print("Check your internet connection");
+                                  //ShowToast(Check your internet connection);
+                                  ShowToats.showToast(
+                                    "Check your internet connection", 
+                                  gravity:  ToastGravity.CENTER,
+                                  bgcolor: Colors.white,
+                                  textcolor: Colors.black
+                                  );
+                                }
+
                               },
                               child: _isLoading
                                   ? Container(
@@ -147,6 +173,49 @@ class _LoginpageState extends State<Loginpage> {
         ],
       ),
     );
+  }
+
+  @override
+  void initState() {
+    connection = Connectivity()
+        .onConnectivityChanged
+        .listen((ConnectivityResult result) {
+      // whenevery connection status is changed.
+      if (result == ConnectivityResult.none) {
+        //there is no any connection
+        setState(() {
+          isoffline = true;
+        });
+      } else if (result == ConnectivityResult.mobile) {
+        //connection is mobile data network
+        setState(() {
+          isoffline = false;
+        });
+      } else if (result == ConnectivityResult.wifi) {
+        //connection is from wifi
+        setState(() {
+          isoffline = false;
+        });
+      } else if (result == ConnectivityResult.ethernet) {
+        //connection is from wired connection
+        setState(() {
+          isoffline = false;
+        });
+      } else if (result == ConnectivityResult.bluetooth) {
+        //connection is from bluetooth threatening
+        setState(() {
+          isoffline = false;
+        });
+      }
+    });
+    super.initState();
+
+  }
+
+   @override
+  void dispose() {
+    connection!.cancel();
+    super.dispose();
   }
 
   void fetchLoginDetailsFromApi() async {
@@ -216,20 +285,6 @@ class _LoginpageState extends State<Loginpage> {
             await SharedPreferencesClass()
                 .writeTheData(PreferenceConstants.ward, ResponseData?.ward);
           }
-
-          /* 
-           
-
-            
-            
-
-           
-
-            
-
-             */
-          //print('pin is $pin');
-
           Navigator.pushNamed(context, AppRoutes.newmpin);
         } else if (ResponseData?.status == 'O') {
           SharedPreferencesClass().writeTheData(

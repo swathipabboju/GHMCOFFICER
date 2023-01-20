@@ -1,6 +1,10 @@
+import 'dart:async';
+
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:ghmcofficerslogin/model/full_details_response.dart';
 import 'package:ghmcofficerslogin/model/shared_model.dart';
 
@@ -8,6 +12,7 @@ import 'package:ghmcofficerslogin/model/shared_model.dart';
 import 'package:ghmcofficerslogin/res/components/background_image.dart';
 import 'package:ghmcofficerslogin/res/components/searchbar.dart';
 import 'package:ghmcofficerslogin/res/components/sharedpreference.dart';
+import 'package:ghmcofficerslogin/res/components/showtoast.dart';
 
 import 'package:ghmcofficerslogin/res/constants/ApiConstants/api_constants.dart';
 import 'package:ghmcofficerslogin/res/constants/Images/image_constants.dart';
@@ -24,6 +29,8 @@ class FullGrievanceDetails extends StatefulWidget {
 }
 
 class _FullGrievanceDetailsState extends State<FullGrievanceDetails> {
+  StreamSubscription? connection;
+  bool isoffline = false;
   GrievanceFullDetails? grievanceFullDetails;
   String errorMessage = '';
   final GlobalKey<SfPdfViewerState> _pdfViewerKey = GlobalKey();
@@ -73,6 +80,9 @@ class _FullGrievanceDetailsState extends State<FullGrievanceDetails> {
                             _fullGrievancesSearchListResponse[index];
                         return GestureDetector(
                           onTap: () async {
+                            var result = await Connectivity().checkConnectivity();
+                            if(result == ConnectivityResult.mobile || result == ConnectivityResult.wifi)
+                            {
                             await SharedPreferencesClass().writeTheData(
                                 PreferenceConstants.historydetails, details.id);
                             //print(details?.id);
@@ -82,6 +92,16 @@ class _FullGrievanceDetailsState extends State<FullGrievanceDetails> {
                                 MaterialPageRoute(
                                   builder: (context) => GrievanceHistory(),
                                 ));
+                            }
+                            else if(result == ConnectivityResult.none)
+                            {
+                              ShowToats.showToast(
+                                  "Check your internet connection", 
+                                  gravity:  ToastGravity.BOTTOM,
+                                  bgcolor: Colors.white,
+                                  textcolor: Colors.black
+                                  );
+                            }
                           },
                           child: Card(
                             shape: RoundedRectangleBorder(
@@ -238,6 +258,37 @@ class _FullGrievanceDetailsState extends State<FullGrievanceDetails> {
 
   @override
   void initState() {
+    connection = Connectivity()
+        .onConnectivityChanged
+        .listen((ConnectivityResult result) {
+      // whenevery connection status is changed.
+      if (result == ConnectivityResult.none) {
+        //there is no any connection
+        setState(() {
+          isoffline = true;
+        });
+      } else if (result == ConnectivityResult.mobile) {
+        //connection is mobile data network
+        setState(() {
+          isoffline = false;
+        });
+      } else if (result == ConnectivityResult.wifi) {
+        //connection is from wifi
+        setState(() {
+          isoffline = false;
+        });
+      } else if (result == ConnectivityResult.ethernet) {
+        //connection is from wired connection
+        setState(() {
+          isoffline = false;
+        });
+      } else if (result == ConnectivityResult.bluetooth) {
+        //connection is from bluetooth threatening
+        setState(() {
+          isoffline = false;
+        });
+      }
+    });
     super.initState();
     fetchDetails();
   }
