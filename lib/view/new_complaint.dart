@@ -277,24 +277,23 @@ class _NewComplaintState extends State<NewComplaint> {
 
                   Padding(
                     padding: const EdgeInsets.only(
-                        left: 18.0, right: 18.0, top: 4.0),
-                    child: Container(
+                        left: 15.0, right: 15.0, top: 2.0),
+                    child: Card(
                       color: Colors.white,
-                      height: MediaQuery.of(context).size.height * 0.15,
-                      constraints: BoxConstraints(maxHeight: 75.0),
-                      child: SingleChildScrollView(
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 8.0, top: 8.0),
-                          child: TextField(
-                            controller: description,
-                            maxLines: null,
-                            decoration: new InputDecoration.collapsed(
-                                border: InputBorder.none,
-                                hintText: "Enter your Description",
-                                hintStyle: TextStyle(
-                                    color: Colors.black38,
-                                    fontWeight: FontWeight.bold)),
-                          ),
+                     // height: MediaQuery.of(context).size.height * 0.15,
+                     // constraints: BoxConstraints(maxHeight: 75.0),
+                      child: SizedBox(
+                        height: 80.0,
+                        child: TextField(
+                          controller: description,
+                          maxLines: null,
+                          decoration: new InputDecoration(
+                            contentPadding: EdgeInsets.only(left: 8.0),
+                              border: InputBorder.none,
+                              hintText: "Enter your Description",
+                              hintStyle: TextStyle(
+                                  color: Colors.black38,
+                                  fontWeight: FontWeight.bold)),
                         ),
                       ),
                     ),

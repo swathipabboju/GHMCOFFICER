@@ -6,6 +6,8 @@ import 'package:ghmcofficerslogin/model/amoh_reassign_concessioner_rejected_tick
 import 'package:ghmcofficerslogin/model/shared_model.dart';
 import 'package:ghmcofficerslogin/res/components/background_image.dart';
 import 'package:ghmcofficerslogin/res/components/sharedpreference.dart';
+import 'package:ghmcofficerslogin/res/components/showalert_singlebutton.dart';
+import 'package:ghmcofficerslogin/res/components/showtoast.dart';
 import 'package:ghmcofficerslogin/res/constants/ApiConstants/api_constants.dart';
 import 'package:ghmcofficerslogin/res/constants/Images/image_constants.dart';
 import 'package:ghmcofficerslogin/res/constants/app_constants.dart';
@@ -117,7 +119,7 @@ class _RejectOrReassignState extends State<RejectOrReassign> {
                     focusNode: myFocusNode,
                     controller: remarks,
                     style: const TextStyle(color: Colors.white),
-                    keyboardType: TextInputType.number,
+                    //keyboardType: TextInputType.number,
                     maxLength: 10,
                     cursorColor: Color.fromARGB(255, 33, 184, 166),
                     decoration: InputDecoration(
@@ -147,11 +149,34 @@ class _RejectOrReassignState extends State<RejectOrReassign> {
                         color: Colors.black.withOpacity(0.3),
                       ),
                       child: TextButton(
-                        onPressed: () {
-                          //print("reason reassign submit -------- ${reason}");
+                        onPressed: () async{
                           if (remarks.text.isEmpty) {
-                            //print("object");
-                            showToast("Please enter remarks");
+                            ShowToats.showToast(
+                              "Please enter remarks",
+                             bgcolor: Colors.white,
+                             textcolor: Colors.black
+                             );
+                          }
+                          else{
+                            await rejectReassignSubmit();
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return SingleButtonDialogBox(
+                                    bgColor: Color.fromARGB(255, 53, 202, 27),
+                                    title: "GHMC Officer App",
+                                    descriptions:
+                                        "${amohReassignConcessionerRejectedTicketsResponse?.sTATUSMESSAGE}",
+                                    Buttontext: "Ok",
+                                    img: Image.asset("assets/check.png"),
+                                    onPressed: () {
+                                      Navigator.popUntil(
+                                          context,
+                                          ModalRoute.withName(
+                                              AppRoutes.consructiondemolitionwaste));
+                                    });
+                              },
+                            );
                           }
                         },
                         child: Text(
@@ -263,6 +288,7 @@ class _RejectOrReassignState extends State<RejectOrReassign> {
             setState(() {
               reason = val.toString();
               //id = 2;
+               print("reason close -------- ${reason}");
             });
           },
         ),
@@ -277,9 +303,10 @@ class _RejectOrReassignState extends State<RejectOrReassign> {
 
   @override
   void initState() {
+    rejectReassignSubmit();
     // TODO: implement initState
     super.initState();
-    rejectReassignSubmit();
+    
   }
 
   rejectReassignSubmit() async {
@@ -298,8 +325,9 @@ class _RejectOrReassignState extends State<RejectOrReassign> {
           tokenid,
       "AMOH_EMPID": empid,
       "IS_REASSIGN": reason,
-      "REMARKS_FOR_REASSIGN": remarks
+      "REMARKS_FOR_REASSIGN": remarks.text
     };
+    print("reassign payload --------- ${requestPayload}");
 
     final dioObject = Dio();
 
@@ -308,15 +336,31 @@ class _RejectOrReassignState extends State<RejectOrReassign> {
         requestUrl,
         data: requestPayload,
       );
-
       //converting response from String to json
       final data = AmohReassignConcessionerRejectedTicketsResponse.fromJson(response.data);
-      print(response.data);
+      print("reassign response ${response.data}");
       setState(() {
         if (data.sTATUSCODE == "200") {
           EasyLoading.dismiss();
           amohReassignConcessionerRejectedTicketsResponse = data;
-        } else if (data.sTATUSCODE == "600") {}
+        } else if(data.sTATUSCODE == "600")
+        {
+          EasyLoading.dismiss();
+          amohReassignConcessionerRejectedTicketsResponse = data;
+          showDialog(
+            context: context, 
+          builder:(context) {
+            return SingleButtonDialogBox(
+              bgColor: Color.fromARGB(255, 225, 38, 38),
+              title: "GHMC OFFICER APP", 
+              descriptions: "${amohReassignConcessionerRejectedTicketsResponse?.sTATUSMESSAGE}", 
+              Buttontext: "Ok", 
+              img: Image.asset("assets/cross.png"), 
+              onPressed: (){
+                  Navigator.popUntil(context, ModalRoute.withName(AppRoutes.myloginpage));
+              });
+          },);
+        }
       });
     } on DioError catch (e) {
       if (e.response?.statusCode == 400 || e.response?.statusCode == 500) {

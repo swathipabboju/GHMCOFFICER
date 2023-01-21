@@ -9,6 +9,7 @@ import 'package:ghmcofficerslogin/res/components/background_image.dart';
 import 'package:ghmcofficerslogin/res/components/sharedpreference.dart';
 import 'package:ghmcofficerslogin/res/constants/ApiConstants/api_constants.dart';
 import 'package:ghmcofficerslogin/res/constants/Images/image_constants.dart';
+import 'package:ghmcofficerslogin/res/constants/app_constants.dart';
 import 'package:ghmcofficerslogin/res/constants/text_constants/text_constants.dart';
 
 class AbstractReport extends StatefulWidget {
@@ -83,7 +84,7 @@ class _AbstractReportState extends State<AbstractReport> {
 
   fetchDetails() async {
     var uid =
-        await SharedPreferencesClass().readTheData(PreferenceConstants.uid);
+        await SharedPreferencesClass().readTheData(PreferenceConstants.empd);
     var typeid =
         await SharedPreferencesClass().readTheData(PreferenceConstants.typeid);
 
@@ -92,8 +93,8 @@ class _AbstractReportState extends State<AbstractReport> {
         ApiConstants.baseurl + ApiConstants.abstract_report_endpoint;
     //creating payload because request type is POST
     var requestPayload = {
-      "userid": "cgg@ghmc",
-      "password": "ghmc@cgg@2018",
+      "userid": AppConstants.userid,
+      "password": AppConstants.password,
       "uid": uid,
       "type_id": typeid,
     };

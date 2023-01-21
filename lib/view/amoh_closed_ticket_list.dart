@@ -7,6 +7,7 @@ import 'package:ghmcofficerslogin/model/shared_model.dart';
 import 'package:ghmcofficerslogin/res/components/background_image.dart';
 import 'package:ghmcofficerslogin/res/components/searchbar.dart';
 import 'package:ghmcofficerslogin/res/components/sharedpreference.dart';
+import 'package:ghmcofficerslogin/res/components/showalert_singlebutton.dart';
 import 'package:ghmcofficerslogin/res/components/textwidget.dart';
 import 'package:ghmcofficerslogin/res/constants/ApiConstants/api_constants.dart';
 import 'package:ghmcofficerslogin/res/constants/Images/image_constants.dart';
@@ -281,6 +282,8 @@ class _AmohClosedTicketListState extends State<AmohClosedTicketList> {
       final data = AmohClosedTicketsListResponse.fromJson(response.data);
       print(response.data);
       setState(() {
+        if(data != null)
+        {
         if (data.sTATUSCODE == "200") {
           EasyLoading.dismiss();
           if (data.ticketList != null) {
@@ -288,7 +291,26 @@ class _AmohClosedTicketListState extends State<AmohClosedTicketList> {
             _amohCloseTicketListResponse = amohClosedTicketsListResponse!.ticketList!;
             _amohCloseTicketSearchListResponse = _amohCloseTicketListResponse;
           }
-        } else if (data.sTATUSCODE == "600") {}
+        } 
+       else if(data.sTATUSCODE == "600")
+        {
+          EasyLoading.dismiss();
+          amohClosedTicketsListResponse = data;
+          showDialog(
+            context: context, 
+          builder:(context) {
+            return SingleButtonDialogBox(
+              bgColor: Color.fromARGB(255, 225, 38, 38),
+              title: "GHMC OFFICER APP", 
+              descriptions: "${amohClosedTicketsListResponse?.sTATUSMESSAGE}", 
+              Buttontext: "Ok", 
+              img: Image.asset("assets/cross.png"), 
+              onPressed: (){
+                  Navigator.popUntil(context, ModalRoute.withName(AppRoutes.myloginpage));
+              });
+          },);
+        }
+        }
       });
     } on DioError catch (e) {
       if (e.response?.statusCode == 400 || e.response?.statusCode == 500) {

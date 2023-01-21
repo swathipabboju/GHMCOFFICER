@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -5,6 +8,7 @@ import 'package:ghmcofficerslogin/model/amount_paid_response.dart';
 import 'package:ghmcofficerslogin/model/shared_model.dart';
 import 'package:ghmcofficerslogin/res/components/background_image.dart';
 import 'package:ghmcofficerslogin/res/components/searchbar.dart';
+import 'package:ghmcofficerslogin/res/components/showalert_singlebutton.dart';
 import 'package:ghmcofficerslogin/res/components/textwidget.dart';
 import 'package:ghmcofficerslogin/res/constants/ApiConstants/api_constants.dart';
 import 'package:ghmcofficerslogin/res/constants/Images/image_constants.dart';
@@ -26,6 +30,8 @@ class AmohAmountPayedList extends StatefulWidget {
 
 class _AmohAmountPayedListState
     extends State<AmohAmountPayedList> {
+    StreamSubscription? connection;
+    bool isoffline = false;
   AmountPaidListResponse? amountPaidListResponse;
   List<PaidList> _paidListResponse = [];
   List<PaidList> _paidSearchListResponse = [];
@@ -245,6 +251,37 @@ class _AmohAmountPayedListState
   
   @override
   void initState() {
+    connection = Connectivity()
+        .onConnectivityChanged
+        .listen((ConnectivityResult result) {
+      // whenevery connection status is changed.
+      if (result == ConnectivityResult.none) {
+        //there is no any connection
+        setState(() {
+          isoffline = true;
+        });
+      } else if (result == ConnectivityResult.mobile) {
+        //connection is mobile data network
+        setState(() {
+          isoffline = false;
+        });
+      } else if (result == ConnectivityResult.wifi) {
+        //connection is from wifi
+        setState(() {
+          isoffline = false;
+        });
+      } else if (result == ConnectivityResult.ethernet) {
+        //connection is from wired connection
+        setState(() {
+          isoffline = false;
+        });
+      } else if (result == ConnectivityResult.bluetooth) {
+        //connection is from bluetooth threatening
+        setState(() {
+          isoffline = false;
+        });
+      }
+    });
     // TODO: implement initState
     super.initState();
     getdetails();
@@ -274,7 +311,9 @@ class _AmohAmountPayedListState
       final data = AmountPaidListResponse.fromJson(response.data);
       print(response.data);
       setState(() {
-        if (data.sTATUSCODE == "200") {
+        if(data != null)
+        {
+           if (data.sTATUSCODE == "200") {
           EasyLoading.dismiss();
           if (data.paidList != null) {
             amountPaidListResponse = data;
@@ -282,9 +321,25 @@ class _AmohAmountPayedListState
             _paidSearchListResponse = _paidListResponse;
           }
         }
-        else if (data.sTATUSCODE == "600"){
-          
+        else if(data.sTATUSCODE == "600")
+        {
+          EasyLoading.dismiss();
+          amountPaidListResponse = data;
+          showDialog(
+            context: context, 
+          builder:(context) {
+            return SingleButtonDialogBox(
+              bgColor: Color.fromARGB(255, 225, 38, 38),
+              title: "GHMC OFFICER APP", 
+              descriptions: "${amountPaidListResponse?.sTATUSMESSAGE}", 
+              Buttontext: "Ok", 
+              img: Image.asset("assets/cross.png"), 
+              onPressed: (){
+                  Navigator.popUntil(context, ModalRoute.withName(AppRoutes.myloginpage));
+              });
+          },);
         }
+        } 
       });
     } on DioError catch (e) {
       if (e.response?.statusCode == 400 || e.response?.statusCode == 500) {

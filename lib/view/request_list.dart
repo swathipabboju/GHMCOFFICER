@@ -9,6 +9,7 @@ import 'package:ghmcofficerslogin/model/shared_model.dart';
 import 'package:ghmcofficerslogin/res/components/background_image.dart';
 import 'package:ghmcofficerslogin/res/components/searchbar.dart';
 import 'package:ghmcofficerslogin/res/components/showalert_network.dart';
+import 'package:ghmcofficerslogin/res/components/showalert_singlebutton.dart';
 import 'package:ghmcofficerslogin/res/components/textwidget.dart';
 import 'package:ghmcofficerslogin/res/constants/ApiConstants/api_constants.dart';
 import 'package:ghmcofficerslogin/res/constants/Images/image_constants.dart';
@@ -95,6 +96,7 @@ class _RequestListState extends State<RequestList> {
                                   "${details?.tICKETID}";
                               AppConstants.request_list_image =
                                   "${details?.iMAGE1PATH}";
+                                  EasyLoading.show();
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
@@ -254,6 +256,35 @@ class _RequestListState extends State<RequestList> {
 
   @override
   void initState() {
+    connection = Connectivity().onConnectivityChanged.listen((ConnectivityResult result) {
+    // whenevery connection status is changed.
+    if(result == ConnectivityResult.none){
+          //there is no any connection
+          setState(() {
+              isoffline = true;
+          }); 
+    }else if(result == ConnectivityResult.mobile){
+          //connection is mobile data network
+          setState(() {
+            isoffline = false;
+          });
+    }else if(result == ConnectivityResult.wifi){
+        //connection is from wifi
+        setState(() {
+            isoffline = false;
+        });
+    }else if(result == ConnectivityResult.ethernet){
+        //connection is from wired connection
+        setState(() {
+            isoffline = false;
+        });
+    }else if(result == ConnectivityResult.bluetooth){
+        //connection is from bluetooth threatening
+        setState(() {
+            isoffline = false;
+        });
+    }
+});
     // TODO: implement initState
     super.initState();
     getdetails();
@@ -285,14 +316,36 @@ class _RequestListState extends State<RequestList> {
       final data = RequestListResponse.fromJson(response.data);
       print(response.data);
       setState(() {
-        if (data.sTATUSCODE == "200") {
+        if(data != null)
+        {
+          if (data.sTATUSCODE == "200") {
           EasyLoading.dismiss();
           if (data.aMOHList != null) {
             requestListResponse = data;
             _amohListResponse = requestListResponse!.aMOHList!;
             _amohSearchListResponse = _amohListResponse;
           }
-        } else if (data.sTATUSCODE == "600") {}
+        } 
+        else if(data.sTATUSCODE == "600")
+        {
+          EasyLoading.dismiss();
+          requestListResponse = data;
+          showDialog(
+            context: context, 
+          builder:(context) {
+            return SingleButtonDialogBox(
+              bgColor: Color.fromARGB(255, 225, 38, 38),
+              title: "GHMC OFFICER APP", 
+              descriptions: "${requestListResponse?.sTATUSMESSAGE}", 
+              Buttontext: "Ok", 
+              img: Image.asset("assets/cross.png"), 
+              onPressed: (){
+                  Navigator.popUntil(context, ModalRoute.withName(AppRoutes.myloginpage));
+              });
+          },);
+        }
+        }
+        
       });
     } on DioError catch (e) {
       if (e.response?.statusCode == 400 || e.response?.statusCode == 500) {

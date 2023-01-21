@@ -12,6 +12,7 @@ import 'package:ghmcofficerslogin/model/raise_request_forward_to_nextward-respon
 import 'package:ghmcofficerslogin/model/shared_model.dart';
 import 'package:ghmcofficerslogin/res/components/background_image.dart';
 import 'package:ghmcofficerslogin/res/components/sharedpreference.dart';
+import 'package:ghmcofficerslogin/res/components/showalert_singlebutton.dart';
 import 'package:ghmcofficerslogin/res/constants/ApiConstants/api_constants.dart';
 import 'package:ghmcofficerslogin/res/constants/Images/image_constants.dart';
 import 'package:ghmcofficerslogin/res/constants/app_constants.dart';
@@ -257,7 +258,7 @@ class _RaiseRequest_RaiseRequestState extends State<RaiseRequest_RaiseRequest> {
                 ),
                 Padding(
                   padding:
-                      const EdgeInsets.only(left: 10.0, right: 15.0, top: 2.0),
+                      const EdgeInsets.only(left: 2.0, right: 15.0, top: 2.0),
                   child: places
                       ? ValueListenableBuilder(
                           valueListenable: publicdropdown,
@@ -414,7 +415,8 @@ class _RaiseRequest_RaiseRequestState extends State<RaiseRequest_RaiseRequest> {
                                       icon: Icon(Icons.edit)),
                                   IconButton(
                                       onPressed: () {
-                                        raiserequest_vehicletype.add(names[index][0]);
+                                        raiserequest_vehicletype
+                                            .add(names[index][0]);
                                         setState(() {
                                           names.removeAt(index);
                                           print("names ${names}");
@@ -439,7 +441,7 @@ class _RaiseRequest_RaiseRequestState extends State<RaiseRequest_RaiseRequest> {
                                             amountd += names[i][2] as int;
                                             amountController.text =
                                                 amountd.toString();
-                                           /*  raiserequest_vehicletype
+                                            /*  raiserequest_vehicletype
                                                 .add(names[index][0]); */
                                           }
                                           print(
@@ -544,7 +546,7 @@ class _RaiseRequest_RaiseRequestState extends State<RaiseRequest_RaiseRequest> {
                         color: Colors.black.withOpacity(0.3),
                       ),
                       child: TextButton(
-                        onPressed: () {
+                        onPressed: () async{
                           if (landmark.text.isEmpty) {
                             showToast("Please enter landmark");
                           } else if (names.isEmpty) {
@@ -552,9 +554,25 @@ class _RaiseRequest_RaiseRequestState extends State<RaiseRequest_RaiseRequest> {
                           } else if (_image == null) {
                             showToast("Please select image");
                           } else {
-                            showSubmitAlert(
-                                raiseRequestRaiseRequestSubmitResponse
-                                    ?.sTATUSMESSAGE);
+                            await raiseRequestraiseRequestSubmit();
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return SingleButtonDialogBox(
+                                    bgColor: Color.fromARGB(255, 53, 202, 27),
+                                    title: "GHMC Officer App",
+                                    descriptions:
+                                        "${raiseRequestRaiseRequestSubmitResponse?.sTATUSMESSAGE}",
+                                    Buttontext: "Ok",
+                                    img: Image.asset("assets/check.png"),
+                                    onPressed: () {
+                                      Navigator.popUntil(
+                                          context,
+                                          ModalRoute.withName(
+                                              AppRoutes.consructiondemolitionwaste));
+                                    });
+                              },
+                            );
                           }
                         },
                         child: Text(
@@ -915,18 +933,20 @@ class _RaiseRequest_RaiseRequestState extends State<RaiseRequest_RaiseRequest> {
       //print(response.data);
 
       setState(() {
-        if (data.sTATUSCODE == "200") {
-          EasyLoading.dismiss();
-          getVehiclesResponse = data;
-          if (getVehiclesResponse?.vEHICLELIST != null) {
-            var vehicletypelistlen =
-                getVehiclesResponse?.vEHICLELIST?.length ?? 0;
-            for (var i = 0; i < vehicletypelistlen; i++) {
-              raiserequest_vehicletype
-                  .add("${getVehiclesResponse?.vEHICLELIST?[i].vEHICLETYPE}");
+        if (data != null) {
+          if (data.sTATUSCODE == "200") {
+            EasyLoading.dismiss();
+            getVehiclesResponse = data;
+            if (getVehiclesResponse?.vEHICLELIST != null) {
+              var vehicletypelistlen =
+                  getVehiclesResponse?.vEHICLELIST?.length ?? 0;
+              for (var i = 0; i < vehicletypelistlen; i++) {
+                raiserequest_vehicletype
+                    .add("${getVehiclesResponse?.vEHICLELIST?[i].vEHICLETYPE}");
+              }
             }
           }
-        } else if (data.sTATUSCODE == "600") {}
+        }
       });
     } on DioError catch (e) {
       if (e.response?.statusCode == 400 || e.response?.statusCode == 500) {
@@ -946,8 +966,8 @@ class _RaiseRequest_RaiseRequestState extends State<RaiseRequest_RaiseRequest> {
     final requestPayload = {
       "USER_ID": AppConstants.userid,
       "PASSWORD": AppConstants.password,
-      "LATITUDE": "17.4366278",
-      "LONGITUDE": "78.3608636"
+      "LATITUDE": "17.4366278", //17.4366278
+      "LONGITUDE": "78.3608636" //78.3608636
     };
 
     final dioObject = Dio();
@@ -957,14 +977,13 @@ class _RaiseRequest_RaiseRequestState extends State<RaiseRequest_RaiseRequest> {
       var len = response.data.length;
       //converting response from String to json
       final data = RaiseRequestDemographicsResponse.fromJson(response.data);
-      print(response.data);
+      print("get demographics ${response.data}");
 
       setState(() {
-        if (data != null) {
-          if (data.sTATUSCODE == "200") {
-            raiseRequestDemographicsResponse = data;
-          }
-        } else if (data.sTATUSCODE == "600") {}
+        if (data.sTATUSCODE == "200") {
+          EasyLoading.dismiss();
+          raiseRequestDemographicsResponse = data;
+        }
       });
     } on DioError catch (e) {
       if (e.response?.statusCode == 400 || e.response?.statusCode == 500) {
@@ -999,6 +1018,7 @@ class _RaiseRequest_RaiseRequestState extends State<RaiseRequest_RaiseRequest> {
       setState(() {
         if (data != null) {
           if (data.sTATUSCODE == "200") {
+            EasyLoading.dismiss();
             raiseRequestForwardToNextWardResponse = data;
             if (raiseRequestForwardToNextWardResponse?.forwardWard != null) {
               var wardplaceslen =
@@ -1010,7 +1030,7 @@ class _RaiseRequest_RaiseRequestState extends State<RaiseRequest_RaiseRequest> {
               }
             }
           }
-        } else if (data.sTATUSCODE == "600") {}
+        }
       });
     } on DioError catch (e) {
       if (e.response?.statusCode == 400 || e.response?.statusCode == 500) {
@@ -1040,8 +1060,8 @@ class _RaiseRequest_RaiseRequestState extends State<RaiseRequest_RaiseRequest> {
       "IMAGE2_PATH": "",
       "IMAGE3_PATH": "",
       "LANDMARK": landmark.text,
-      "LATITUDE": _currentPosition?.latitude,
-      "LONGITUDE": _currentPosition?.longitude,
+      "LATITUDE": "${_currentPosition?.latitude}",
+      "LONGITUDE": "${_currentPosition?.longitude}",
       "TOKEN_ID": tokenid,
       "VEHICLE_DETAILS": [
         {"NO_OF_TRIPS": tripsController.text, "VEHICLE_TYPE_ID": vehicleid}
@@ -1049,6 +1069,8 @@ class _RaiseRequest_RaiseRequestState extends State<RaiseRequest_RaiseRequest> {
       "WARD_ID": raiseRequestDemographicsResponse?.wARDID,
       "ZONE_ID": raiseRequestDemographicsResponse?.zONEID
     };
+
+    print("raise request ${requestPayload}");
 
     final dioObject = Dio();
 
@@ -1058,14 +1080,34 @@ class _RaiseRequest_RaiseRequestState extends State<RaiseRequest_RaiseRequest> {
       //converting response from String to json
       final data =
           RaiseRequestRaiseRequestSubmitResponse.fromJson(response.data);
-      print(response.data);
+      print("raise raise request ${response.data}");
 
       setState(() {
         if (data != null) {
           if (data.sTATUSCODE == "200") {
+            EasyLoading.dismiss();
             raiseRequestRaiseRequestSubmitResponse = data;
+          } else if (data.sTATUSCODE == "600") {
+            EasyLoading.dismiss();
+            raiseRequestRaiseRequestSubmitResponse = data;
+            showDialog(
+              context: context,
+              builder: (context) {
+                return SingleButtonDialogBox(
+                    bgColor: Color.fromARGB(255, 225, 38, 38),
+                    title: "GHMC OFFICER APP",
+                    descriptions:
+                        "${raiseRequestRaiseRequestSubmitResponse?.sTATUSMESSAGE}",
+                    Buttontext: "Ok",
+                    img: Image.asset("assets/cross.png"),
+                    onPressed: () {
+                      Navigator.popUntil(
+                          context, ModalRoute.withName(AppRoutes.myloginpage));
+                    });
+              },
+            );
           }
-        } else if (data.sTATUSCODE == "600") {}
+        }
       });
     } on DioError catch (e) {
       if (e.response?.statusCode == 400 || e.response?.statusCode == 500) {

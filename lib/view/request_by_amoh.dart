@@ -9,30 +9,28 @@ import 'package:ghmcofficerslogin/model/shared_model.dart';
 import 'package:ghmcofficerslogin/res/components/background_image.dart';
 import 'package:ghmcofficerslogin/res/components/searchbar.dart';
 import 'package:ghmcofficerslogin/res/components/sharedpreference.dart';
+import 'package:ghmcofficerslogin/res/components/showalert_singlebutton.dart';
 import 'package:ghmcofficerslogin/res/components/textwidget.dart';
 import 'package:ghmcofficerslogin/res/constants/ApiConstants/api_constants.dart';
 import 'package:ghmcofficerslogin/res/constants/Images/image_constants.dart';
 import 'package:ghmcofficerslogin/res/constants/routes/app_routes.dart';
 import 'package:ghmcofficerslogin/res/constants/text_constants/text_constants.dart';
 
-
 class RequestByAmohList extends StatefulWidget {
   const RequestByAmohList({super.key});
 
   @override
-  State<RequestByAmohList> createState() =>
-      _RequestByAmohListState();
+  State<RequestByAmohList> createState() => _RequestByAmohListState();
 }
 
-class _RequestByAmohListState
-    extends State<RequestByAmohList> {
+class _RequestByAmohListState extends State<RequestByAmohList> {
   StreamSubscription? connection;
   bool isoffline = false;
   RequestByAmohResponse? requestByAmohResponse;
 
   List<CitizenList> _requestByAmohListResponse = [];
   List<CitizenList> _requestByAmohSearchListResponse = [];
- 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -43,7 +41,8 @@ class _RequestByAmohListState
               icon: Icon(Icons.home, color: Colors.black),
               onPressed: () async {
                 EasyLoading.show();
-                Navigator.pushNamed(context, AppRoutes.consructiondemolitionwaste);
+                Navigator.pushNamed(
+                    context, AppRoutes.consructiondemolitionwaste);
               },
             ),
           ],
@@ -78,99 +77,83 @@ class _RequestByAmohListState
                 ),
                 Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.only(top: 10.0),
-                      child: ListView.builder(
-                          itemCount: _requestByAmohSearchListResponse.length,
-                          itemBuilder: (context, index) {
-                            final details = _requestByAmohSearchListResponse[index];
-                                
-                            return GestureDetector(
-                              onTap: () async {
-                                /*  await SharedPreferencesClass().writeTheData(
-                                  PreferenceConstants.historydetails, details.id); */
-                                //print(details?.id);
-                                //EasyLoading.show();
-                                /*  Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => GrievanceHistory(),
-                                  )); */
-                              },
+                  padding: const EdgeInsets.only(top: 10.0),
+                  child: ListView.builder(
+                      itemCount: _requestByAmohSearchListResponse.length,
+                      itemBuilder: (context, index) {
+                        final details = _requestByAmohSearchListResponse[index];
+
+                        return GestureDetector(
+                          onTap: () async {},
+                          child: Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 10.0),
+                            child: Card(
+                              shape: RoundedRectangleBorder(
+                                side:
+                                    BorderSide(color: Colors.black87, width: 1),
+                              ),
+                              color: Colors.white,
                               child: Padding(
                                 padding:
-                                    const EdgeInsets.symmetric(horizontal: 10.0),
-                                child: Card(
-                                  shape: RoundedRectangleBorder(
-                                    side: BorderSide(
-                                        color: Colors.black87, width: 1),
-                                  ),
-                                  color: Colors.white,
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 10.0),
-                                    child: Column(
-                                      children: [
-                                        RowComponent(
-                                          TextConstants
-                                              .ticketid,
-                                          details.tICKETID,
-                                        ),
-                                        Line(),
-                                        RowComponent(
-                                          TextConstants
-                                              .dateandtime,
-                                          details.cREATEDDATE,
-                                        ),
-                                        Line(),
-                                        RowComponent(
-                                          TextConstants
-                                              .location,
-                                          details.lOCATION,
-                                        ),
-                                        Line(),
-                                        RowComponent(
-                                          TextConstants
-                                              .estimatedweight,
-                                          details.eSTWT,
-                                        ),
-                                        Line(),
-                                        RowComponent(
-                                          TextConstants
-                                              .status,
-                                          details.sTATUS,
-                                        ),
-                                        Line(),
-                                        RowComponent(
-                                          TextConstants
-                                              .paymentstatus,
-                                          details.pAYMENTSTATUS,
-                                        ),
-                                        Line(),
-                                        Padding(
-                                          padding:
-                                              const EdgeInsets.only(bottom: 8.0),
-                                          child: Image.network(
-                                            "${details.iMAGE1PATH}",
+                                    const EdgeInsets.symmetric(vertical: 10.0),
+                                child: Column(
+                                  children: [
+                                    RowComponent(
+                                      TextConstants.ticketid,
+                                      details.tICKETID,
+                                    ),
+                                    Line(),
+                                    RowComponent(
+                                      TextConstants.dateandtime,
+                                      details.cREATEDDATE,
+                                    ),
+                                    Line(),
+                                    RowComponent(
+                                      TextConstants.location,
+                                      details.lOCATION,
+                                    ),
+                                    Line(),
+                                    RowComponent(
+                                      TextConstants.estimatedweight,
+                                      details.eSTWT ?? "",
+                                    ),
+                                    Line(),
+                                    RowComponent(
+                                      TextConstants.status,
+                                      details.sTATUS,
+                                    ),
+                                    Line(),
+                                    RowComponent(
+                                      TextConstants.paymentstatus,
+                                      details.pAYMENTSTATUS,
+                                    ),
+                                    Line(),
+                                    Padding(
+                                      padding:
+                                          const EdgeInsets.only(bottom: 8.0),
+                                      child: Image.network(
+                                        "${details.iMAGE1PATH}",
+                                        height: 100.0,
+                                        width: 100.0,
+                                        errorBuilder:
+                                            (context, error, stackTrace) {
+                                          return Image.asset(
+                                            ImageConstants.no_uploaded,
                                             height: 100.0,
                                             width: 100.0,
-                                            errorBuilder:
-                                                (context, error, stackTrace) {
-                                              return Image.asset(
-                                                ImageConstants.no_uploaded,
-                                                height: 100.0,
-                                                width: 100.0,
-                                                ); 
-                                            },
-                                          ),
-                                        ),
-                                      ],
+                                          );
+                                        },
+                                      ),
                                     ),
-                                  ),
+                                  ],
                                 ),
                               ),
-                            );
-                          }),
-                    )),
+                            ),
+                          ),
+                        );
+                      }),
+                )),
               ],
             ),
           ],
@@ -183,8 +166,6 @@ class _RequestByAmohListState
       color: Colors.grey,
     );
   }
-
-  
 
   showAlertImage(String? photo) async {
     showDialog(
@@ -243,8 +224,9 @@ class _RequestByAmohListState
     } else {
       print(enteredKeyword);
       results = _requestByAmohListResponse
-          .where((element) =>
-              element.tICKETID!.toLowerCase().contains(enteredKeyword.toLowerCase()))
+          .where((element) => element.tICKETID!
+              .toLowerCase()
+              .contains(enteredKeyword.toLowerCase()))
           .toList();
 
       setState(() {
@@ -254,7 +236,6 @@ class _RequestByAmohListState
     }
   }
 
-  
   @override
   void initState() {
     connection = Connectivity()
@@ -288,22 +269,26 @@ class _RequestByAmohListState
         });
       }
     });
-    // TODO: implement initState
+    
+      getdetails();
+
+
     super.initState();
-    getdetails();
   }
-  
+
   getdetails() async {
-    var tokenid = await SharedPreferencesClass().readTheData(PreferenceConstants.tokenId);
-    var empid = await SharedPreferencesClass().readTheData(PreferenceConstants.empd);
+    var tokenid =
+        await SharedPreferencesClass().readTheData(PreferenceConstants.tokenId);
+    var empid =
+        await SharedPreferencesClass().readTheData(PreferenceConstants.empd);
     const requestUrl =
         ApiConstants.cndw_baseurl + ApiConstants.amoh_request_by_endpoint;
 
     final requestPayload = {
-      "EMPLOYEE_ID":empid,
-      "DEVICEID":"5ed6cd80c2bf361b",
-      "TOKEN_ID":tokenid,
-      };
+      "EMPLOYEE_ID": empid,
+      "DEVICEID": "5ed6cd80c2bf361b",
+      "TOKEN_ID": tokenid,
+    };
 
     final dioObject = Dio();
 
@@ -317,16 +302,33 @@ class _RequestByAmohListState
       final data = RequestByAmohResponse.fromJson(response.data);
       print(response.data);
       setState(() {
-        if (data.sTATUSCODE == "200") {
-          EasyLoading.dismiss();
-          if (data.citizenList != null) {
+        if (data != null) {
+          if (data.sTATUSCODE == "200") {
+            EasyLoading.dismiss();
+            if (data.citizenList != null) {
+              requestByAmohResponse = data;
+              _requestByAmohListResponse = requestByAmohResponse!.citizenList!;
+              _requestByAmohSearchListResponse = _requestByAmohListResponse;
+            }
+          } else if (data.sTATUSCODE == "600") {
+            EasyLoading.dismiss();
             requestByAmohResponse = data;
-             _requestByAmohListResponse = requestByAmohResponse!.citizenList!;
-            _requestByAmohSearchListResponse = _requestByAmohListResponse;
+            showDialog(
+              context: context,
+              builder: (context) {
+                return SingleButtonDialogBox(
+                    bgColor: Color.fromARGB(255, 225, 38, 38),
+                    title: "GHMC OFFICER APP",
+                    descriptions: "${requestByAmohResponse?.sTATUSMESSAGE}",
+                    Buttontext: "Ok",
+                    img: Image.asset("assets/cross.png"),
+                    onPressed: () {
+                      Navigator.popUntil(
+                          context, ModalRoute.withName(AppRoutes.myloginpage));
+                    });
+              },
+            );
           }
-        }
-        else if (data.sTATUSCODE == "600"){
-          
         }
       });
     } on DioError catch (e) {
@@ -339,6 +341,7 @@ class _RequestByAmohListState
       //print("status code is ${e.response?.statusCode}");
     }
   }
+
   showAlert(String message, {String text = ""}) {
     showDialog(
         context: context,
@@ -367,7 +370,7 @@ class _RequestByAmohListState
           );
         }); //showDialog
   }
-  
+
   //
 
 }

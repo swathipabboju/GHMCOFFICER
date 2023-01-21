@@ -9,7 +9,9 @@ import 'package:ghmcofficerslogin/model/shared_model.dart';
 import 'package:ghmcofficerslogin/res/components/background_image.dart';
 import 'package:ghmcofficerslogin/res/components/logo_details.dart';
 import 'package:ghmcofficerslogin/res/components/sharedpreference.dart';
+import 'package:ghmcofficerslogin/res/components/showalert.dart';
 import 'package:ghmcofficerslogin/res/components/showalert_network.dart';
+import 'package:ghmcofficerslogin/res/components/showalert_singlebutton.dart';
 import 'package:ghmcofficerslogin/res/constants/ApiConstants/api_constants.dart';
 import 'package:ghmcofficerslogin/res/constants/Images/image_constants.dart';
 import 'package:ghmcofficerslogin/res/constants/routes/app_routes.dart';
@@ -58,7 +60,7 @@ class _AmohDashboardList extends State<AmohDashboardList> {
                           var result = await Connectivity().checkConnectivity();
                           if(result == ConnectivityResult.mobile || result == ConnectivityResult.wifi)
                           {
-                          print("data");
+                          EasyLoading.show();
                           Navigator.pushNamed(context, AppRoutes.requestlist);
                           }
                           else if (result == ConnectivityResult.none) {
@@ -339,12 +341,35 @@ class _AmohDashboardList extends State<AmohDashboardList> {
       final data = AMOHDashboardListResponse.fromJson(response.data);
       print(response.data);
       setState(() {
-        if (data.sTATUSCODE == "200") {
+        if(data != null)
+        {
+          if (data.sTATUSCODE == "200") {
           EasyLoading.dismiss();
           if (data.aMOHList != null) {
             amohDashboardListResponse = data;
           }
         }
+        
+        else if(data.sTATUSCODE == "600")
+        {
+          EasyLoading.dismiss();
+          amohDashboardListResponse = data;
+          showDialog(
+            context: context, 
+          builder:(context) {
+            return SingleButtonDialogBox(
+              bgColor: Color.fromARGB(255, 225, 38, 38),
+              title: "GHMC OFFICER APP", 
+              descriptions: "${amohDashboardListResponse?.sTATUSMESSAGE}", 
+              Buttontext: "Ok", 
+              img: Image.asset("assets/cross.png"), 
+              onPressed: (){
+                  Navigator.popUntil(context, ModalRoute.withName(AppRoutes.myloginpage));
+              });
+          },);
+        }
+        }
+        
       });
     } on DioError catch (e) {
       if (e.response?.statusCode == 400 || e.response?.statusCode == 500) {

@@ -1,6 +1,3 @@
-import 'dart:async';
-
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -9,6 +6,7 @@ import 'package:ghmcofficerslogin/model/request_estimation_response.dart';
 import 'package:ghmcofficerslogin/model/shared_model.dart';
 import 'package:ghmcofficerslogin/res/components/background_image.dart';
 import 'package:ghmcofficerslogin/res/components/sharedpreference.dart';
+import 'package:ghmcofficerslogin/res/components/showalert_singlebutton.dart';
 import 'package:ghmcofficerslogin/res/constants/ApiConstants/api_constants.dart';
 import 'package:ghmcofficerslogin/res/constants/Images/image_constants.dart';
 import 'package:ghmcofficerslogin/res/constants/app_constants.dart';
@@ -151,8 +149,28 @@ class _RaiseRequestState extends State<RaiseRequest> {
                         color: Colors.black.withOpacity(0.3),
                       ),
                       child: TextButton(
-                        onPressed: () {
-                          showAlert(raiseRequestSubmitResponse?.sTATUSMESSAGE);
+                        onPressed: () async{
+                          //showAlert(raiseRequestSubmitResponse?.sTATUSMESSAGE);
+                          await raiseRequestSubmit();
+                          showDialog(
+                              context: context,
+                              builder: (context) {
+                                return SingleButtonDialogBox(
+                                    bgColor: Color.fromARGB(255, 53, 202, 27),
+                                    title: "GHMC Officer App",
+                                    descriptions:
+                                        "${raiseRequestSubmitResponse?.sTATUSMESSAGE}",
+                                    Buttontext: "Ok",
+                                    img: Image.asset("assets/check.png"),
+                                    onPressed: () {
+                                      Navigator.popUntil(
+                                          context,
+                                          ModalRoute.withName(
+                                              AppRoutes.consructiondemolitionwaste));
+                                    });
+                              },
+                            );
+                          
                         },
                         child: Text(
                           "Forward to Concessionaire",
@@ -178,7 +196,7 @@ class _RaiseRequestState extends State<RaiseRequest> {
       endIndent: 0,
     );
   }
-  showAlert(String? sTATUSMESSAGE) {
+  /* showAlert(String? sTATUSMESSAGE) {
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -233,7 +251,7 @@ class _RaiseRequestState extends State<RaiseRequest> {
             ],
           );
         }); //showDialog
-  } 
+  }  */
 
   RowComponent(var data, var value, var color) {
     return Padding(
@@ -326,10 +344,31 @@ class _RaiseRequestState extends State<RaiseRequest> {
       final data = RaiseRequestSubmitResponse.fromJson(response.data);
       print(response.data);
       setState(() {
+        if(data != null)
+        {
         if (data.sTATUSCODE == "200") {
           EasyLoading.dismiss();
           raiseRequestSubmitResponse = data;
-        } else if (data.sTATUSCODE == "600") {}
+        } 
+        else if(data.sTATUSCODE == "600")
+        {
+          EasyLoading.dismiss();
+          raiseRequestSubmitResponse = data;
+          showDialog(
+            context: context, 
+          builder:(context) {
+            return SingleButtonDialogBox(
+              bgColor: Color.fromARGB(255, 225, 38, 38),
+              title: "GHMC OFFICER APP", 
+              descriptions: "${raiseRequestSubmitResponse?.sTATUSMESSAGE}", 
+              Buttontext: "Ok", 
+              img: Image.asset("assets/cross.png"), 
+              onPressed: (){
+                  Navigator.popUntil(context, ModalRoute.withName(AppRoutes.myloginpage));
+              });
+          },);
+        }
+        }
       });
     } on DioError catch (e) {
       if (e.response?.statusCode == 400 || e.response?.statusCode == 500) {

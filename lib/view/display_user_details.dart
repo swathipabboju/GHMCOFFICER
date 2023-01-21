@@ -14,6 +14,7 @@ import 'package:ghmcofficerslogin/res/components/sharedpreference.dart';
 import 'package:ghmcofficerslogin/res/components/showtoast.dart';
 import 'package:ghmcofficerslogin/res/constants/ApiConstants/api_constants.dart';
 import 'package:ghmcofficerslogin/res/constants/Images/image_constants.dart';
+import 'package:ghmcofficerslogin/res/constants/app_constants.dart';
 import 'package:ghmcofficerslogin/res/constants/text_constants/text_constants.dart';
 import 'package:ghmcofficerslogin/View/fulldetails.dart';
 
@@ -266,7 +267,7 @@ class _UserDetailsState extends State<UserDetails> {
   void GrievanceUserDetails() async {
     var modeid = await SharedPreferencesClass()
         .readTheData(PreferenceConstants.userdetails);
-        var uid = await SharedPreferencesClass().readTheData(PreferenceConstants.empd);
+    var uid = await SharedPreferencesClass().readTheData(PreferenceConstants.empd);
       
    var typeid = await SharedPreferencesClass(). readTheData(PreferenceConstants.typeid);
      var slftype =
@@ -287,8 +288,8 @@ class _UserDetailsState extends State<UserDetails> {
 
     //creating payload because request type is POST
     var requestPayload = {
-      "userid": "cgg@ghmc",
-      "password": "ghmc@cgg@2018",
+      "userid": AppConstants.userid,
+      "password": AppConstants.password,
       "uid": uid,
       "mode": modeid,
       "type_id": typeid,

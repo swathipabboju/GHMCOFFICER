@@ -442,7 +442,7 @@ class _GhmcDashboardState extends State<GhmcDashboard> {
 
       //converting response from String to json
       final data = DashboardResponse.fromJson(response.data);
-      print(response.data);
+      print("ghmc response ${response.data}");
 
       setState(() {
         if (data.status == "true") {

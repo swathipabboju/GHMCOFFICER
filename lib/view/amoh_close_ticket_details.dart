@@ -6,6 +6,8 @@ import 'package:ghmcofficerslogin/model/amoh_close_ticket_details_submit_respons
 import 'package:ghmcofficerslogin/model/shared_model.dart';
 import 'package:ghmcofficerslogin/res/components/background_image.dart';
 import 'package:ghmcofficerslogin/res/components/sharedpreference.dart';
+import 'package:ghmcofficerslogin/res/components/showalert_singlebutton.dart';
+import 'package:ghmcofficerslogin/res/components/showtoast.dart';
 import 'package:ghmcofficerslogin/res/constants/ApiConstants/api_constants.dart';
 import 'package:ghmcofficerslogin/res/constants/Images/image_constants.dart';
 import 'package:ghmcofficerslogin/res/constants/app_constants.dart';
@@ -227,7 +229,9 @@ class _AmohCloseTicketDetailsState extends State<AmohCloseTicketDetails> {
                           child: TextButton(
                             onPressed: () {
                               if (remarks.text.isEmpty) {
-                                showToast("Please enter remarks");
+                               // showToast("Please enter remarks");
+                                ShowToats.showToast("Please enter remarks",
+                            bgcolor: Colors.white, textcolor: Colors.black);
                               }
                             },
                             child: Text(
@@ -409,10 +413,35 @@ try {
       final data = AmohCloseTicketDetailsSubmitResponse.fromJson(response.data);
       print(response.data);
       setState(() {
+        if(data != null){
         if (data.sTATUSCODE == "200") {
           EasyLoading.dismiss();
             amohCloseTicketDetailsSubmitResponse = data;
-        } else if (data.sTATUSCODE == "600") {}
+        }
+        else if(data.sTATUSCODE == "400")
+        {
+          EasyLoading.dismiss();
+          amohCloseTicketDetailsSubmitResponse = data;
+        }
+        else if(data.sTATUSCODE == "600")
+        {
+          EasyLoading.dismiss();
+          amohCloseTicketDetailsSubmitResponse = data;
+          showDialog(
+            context: context, 
+          builder:(context) {
+            return SingleButtonDialogBox(
+              bgColor: Color.fromARGB(255, 225, 38, 38),
+              title: "GHMC OFFICER APP", 
+              descriptions: "${amohCloseTicketDetailsSubmitResponse?.sTATUSMESSAGE}", 
+              Buttontext: "Ok", 
+              img: Image.asset("assets/cross.png"), 
+              onPressed: (){
+                  Navigator.popUntil(context, ModalRoute.withName(AppRoutes.myloginpage));
+              });
+          },);
+        }
+        }
       });
     } on DioError catch (e) {
       if (e.response?.statusCode == 400 || e.response?.statusCode == 500) {
